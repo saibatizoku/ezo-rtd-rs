@@ -94,105 +94,138 @@ fn build_command(cmd: &TemperatureCommand) -> CommandOptions {
         CalibrationTemperature(temp) => {
             CommandOptions::default()
                 .set_command(format!("Cal,{:.*}\0", 2, temp))
-                .set_delay(800)
                 .clone()
         },
         CalibrationClear => {
             CommandOptions::default()
                 .set_command("Cal,clear\0".to_string())
-                .set_delay(300)
                 .clone()
         },
-        _ => {
-            println!("This is a placeholder");
-            CommandOptions::default()
-        }
-    }
-}
-
-fn command_string(cmd: &TemperatureCommand) -> String {
-    use self::TemperatureCommand::*;
-    match *cmd {
-        CalibrationTemperature(_) => {
-            build_command(cmd).command
-        },
-        CalibrationClear => {
-            build_command(cmd).command
-        },
         CalibrationState => {
-            "Cal,?\0".to_string()
+            CommandOptions::default()
+                .set_command("Cal,?\0".to_string())
+                .clone()
+
         },
         DataloggerPeriod(n) => {
-            format!("D,{}\0", n)
+            CommandOptions::default()
+                .set_command(format!("D,{}\0", n))
+                .clone()
         },
         DataloggerDisable => {
-            "D,0\0".to_string()
+            CommandOptions::default()
+                .set_command("D,0\0".to_string())
+                .clone()
         },
         DataloggerInterval => {
-            "D,?\0".to_string()
+            CommandOptions::default()
+                .set_command("D,?\0".to_string())
+                .clone()
         },
         DeviceAddress(addr) => {
-            format!("I2C,{}\0", addr)
+            CommandOptions::default()
+                .set_command(format!("I2C,{}\0", addr))
+                .clone()
         },
         DeviceInformation => {
-            "I\0".to_string()
+            CommandOptions::default()
+                .set_command("I\0".to_string())
+                .clone()
         },
         Export(ref calib) => {
-            format!("Export,{}\0", calib)
+            CommandOptions::default()
+                .set_command(format!("Export,{}\0", calib))
+                .clone()
         },
         ExportInfo => {
-            "Export,?\0".to_string()
+            CommandOptions::default()
+                .set_command("Export,?\0".to_string())
+                .clone()
         },
         Import(ref calib) => {
-            format!("Import,{}\0", calib)
+            CommandOptions::default()
+                .set_command(format!("Import,{}\0", calib))
+                .clone()
         },
         Factory => {
-            "Factory\0".to_string()
+            CommandOptions::default()
+                .set_command("Factory\0".to_string())
+                .clone()
         },
         Find => {
-            "F\0".to_string()
+            CommandOptions::default()
+                .set_command("F\0".to_string())
+                .clone()
         },
         LedOn => {
-            "L,1\0".to_string()
+            CommandOptions::default()
+                .set_command("L,1\0".to_string())
+                .clone()
         },
         LedOff => {
-            "L,0\0".to_string()
+            CommandOptions::default()
+                .set_command("L,0\0".to_string())
+                .clone()
         },
         LedState => {
-            "L,?\0".to_string()
+            CommandOptions::default()
+                .set_command("L,?\0".to_string())
+                .clone()
         },
         MemoryClear => {
-            "M,clear\0".to_string()
+            CommandOptions::default()
+                .set_command("M,clear\0".to_string())
+                .clone()
         },
         MemoryRecall => {
-            "M\0".to_string()
+            CommandOptions::default()
+                .set_command("M\0".to_string())
+                .clone()
         },
         MemoryRecallLastLocation => {
-            "M,?\0".to_string()
+            CommandOptions::default()
+                .set_command("M,?\0".to_string())
+                .clone()
         },
         ProtocolLockEnable => {
-            "Plock,1\0".to_string()
+            CommandOptions::default()
+                .set_command("Plock,1\0".to_string())
+                .clone()
         },
         ProtocolLockDisable => {
-            "Plock,0\0".to_string()
+            CommandOptions::default()
+                .set_command("Plock,0\0".to_string())
+                .clone()
         },
         ProtocolLockStatus => {
-            "Plock,?\0".to_string()
+            CommandOptions::default()
+                .set_command("Plock,?\0".to_string())
+                .clone()
         },
         Reading => {
-            "R\0".to_string()
+            CommandOptions::default()
+                .set_command("R\0".to_string())
+                .clone()
         },
         ScaleCelsius => {
-            "S,c\0".to_string()
+            CommandOptions::default()
+                .set_command("S,c\0".to_string())
+                .clone()
         },
         ScaleKelvin => {
-            "S,k\0".to_string()
+            CommandOptions::default()
+                .set_command("S,k\0".to_string())
+                .clone()
         },
         ScaleFahrenheit => {
-            "S,f\0".to_string()
+            CommandOptions::default()
+                .set_command("S,f\0".to_string())
+                .clone()
         },
         ScaleStatus => {
-            "S,?\0".to_string()
+            CommandOptions::default()
+                .set_command("S,?\0".to_string())
+                .clone()
         },
         SetUart(ref baud) => {
             let rate = match *baud {
@@ -205,15 +238,25 @@ fn command_string(cmd: &TemperatureCommand) -> String {
                 Bauds::Bps57600 => Bauds::Bps57600 as u32,
                 Bauds::Bps115200 => Bauds::Bps115200 as u32,
             };
-            format!("Baud,{}\0", rate)
+            CommandOptions::default()
+                .set_command(format!("Baud,{}\0", rate))
+                .clone()
         },
         Sleep => {
-            "Sleep\0".to_string()
+            CommandOptions::default()
+                .set_command("Sleep\0".to_string())
+                .clone()
         },
         Status => {
-            "Status\0".to_string()
+            CommandOptions::default()
+                .set_command("Status\0".to_string())
+                .clone()
         },
     }
+}
+
+fn command_string(cmd: &TemperatureCommand) -> String {
+    build_command(cmd).command
 }
 
 impl I2cCommand for TemperatureCommand {
