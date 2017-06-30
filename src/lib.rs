@@ -86,7 +86,7 @@ impl CommandOptions {
     fn set_delay(&mut self, delay: usize) -> &mut CommandOptions{
         self.delay = Some(delay); self
     }
-    fn finish(self) -> CommandOptions {
+    fn finish(&self) -> CommandOptions {
         self.clone()
     }
 }
@@ -97,68 +97,68 @@ fn build_command(cmd: &TemperatureCommand) -> CommandOptions {
         CalibrationTemperature(temp) => {
             CommandOptions::default()
                 .set_command(format!("Cal,{:.*}\0", 2, temp))
-                .delay(1000)
+                .set_delay(1000)
                 .finish()
         },
         CalibrationClear => {
             CommandOptions::default()
                 .set_command("Cal,clear\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         CalibrationState => {
             CommandOptions::default()
                 .set_command("Cal,?\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
 
         },
         DataloggerPeriod(n) => {
             CommandOptions::default()
                 .set_command(format!("D,{}\0", n))
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         DataloggerDisable => {
             CommandOptions::default()
                 .set_command("D,0\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         DataloggerInterval => {
             CommandOptions::default()
                 .set_command("D,?\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         DeviceAddress(addr) => {
             CommandOptions::default()
                 .set_command(format!("I2C,{}\0", addr))
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         DeviceInformation => {
             CommandOptions::default()
                 .set_command("I\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         Export(ref calib) => {
             CommandOptions::default()
                 .set_command(format!("Export,{}\0", calib))
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         ExportInfo => {
             CommandOptions::default()
                 .set_command("Export,?\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         Import(ref calib) => {
             CommandOptions::default()
                 .set_command(format!("Import,{}\0", calib))
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         Factory => {
@@ -169,67 +169,67 @@ fn build_command(cmd: &TemperatureCommand) -> CommandOptions {
         Find => {
             CommandOptions::default()
                 .set_command("F\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         LedOn => {
             CommandOptions::default()
                 .set_command("L,1\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         LedOff => {
             CommandOptions::default()
                 .set_command("L,0\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         LedState => {
             CommandOptions::default()
                 .set_command("L,?\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         MemoryClear => {
             CommandOptions::default()
                 .set_command("M,clear\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         MemoryRecall => {
             CommandOptions::default()
                 .set_command("M\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         MemoryRecallLastLocation => {
             CommandOptions::default()
                 .set_command("M,?\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         ProtocolLockEnable => {
             CommandOptions::default()
                 .set_command("Plock,1\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         ProtocolLockDisable => {
             CommandOptions::default()
                 .set_command("Plock,0\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         ProtocolLockStatus => {
             CommandOptions::default()
                 .set_command("Plock,?\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         Reading => {
             CommandOptions::default()
                 .set_command("R\0".to_string())
-                .delay(600)
+                .set_delay(600)
                 .finish()
         },
         ScaleCelsius => {
@@ -240,19 +240,19 @@ fn build_command(cmd: &TemperatureCommand) -> CommandOptions {
         ScaleKelvin => {
             CommandOptions::default()
                 .set_command("S,k\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         ScaleFahrenheit => {
             CommandOptions::default()
                 .set_command("S,f\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         ScaleStatus => {
             CommandOptions::default()
                 .set_command("S,?\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
         SetUart(ref baud) => {
@@ -278,7 +278,7 @@ fn build_command(cmd: &TemperatureCommand) -> CommandOptions {
         Status => {
             CommandOptions::default()
                 .set_command("Status\0".to_string())
-                .delay(300)
+                .set_delay(300)
                 .finish()
         },
     }
