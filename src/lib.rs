@@ -67,8 +67,8 @@ pub enum ResponseCode {
 
 #[derive(Clone,Debug,Default,PartialEq,Eq)]
 struct CommandResponse {
-    code: Option<ResponseCode>,
-    data: Option<[u8; 14]>
+    code: ResponseCode,
+    data: Option<[u8; 16]>
 }
 
 #[derive(Clone,Debug,Default,PartialEq,Eq)]
