@@ -86,6 +86,9 @@ impl CommandOptions {
     fn set_delay(&mut self, delay: usize) -> &mut CommandOptions{
         self.delay = Some(delay); self
     }
+    fn finish(self) -> CommandOptions {
+        self.clone()
+    }
 }
 
 fn build_command(cmd: &TemperatureCommand) -> CommandOptions {
@@ -94,138 +97,138 @@ fn build_command(cmd: &TemperatureCommand) -> CommandOptions {
         CalibrationTemperature(temp) => {
             CommandOptions::default()
                 .set_command(format!("Cal,{:.*}\0", 2, temp))
-                .clone()
+                .finish()
         },
         CalibrationClear => {
             CommandOptions::default()
                 .set_command("Cal,clear\0".to_string())
-                .clone()
+                .finish()
         },
         CalibrationState => {
             CommandOptions::default()
                 .set_command("Cal,?\0".to_string())
-                .clone()
+                .finish()
 
         },
         DataloggerPeriod(n) => {
             CommandOptions::default()
                 .set_command(format!("D,{}\0", n))
-                .clone()
+                .finish()
         },
         DataloggerDisable => {
             CommandOptions::default()
                 .set_command("D,0\0".to_string())
-                .clone()
+                .finish()
         },
         DataloggerInterval => {
             CommandOptions::default()
                 .set_command("D,?\0".to_string())
-                .clone()
+                .finish()
         },
         DeviceAddress(addr) => {
             CommandOptions::default()
                 .set_command(format!("I2C,{}\0", addr))
-                .clone()
+                .finish()
         },
         DeviceInformation => {
             CommandOptions::default()
                 .set_command("I\0".to_string())
-                .clone()
+                .finish()
         },
         Export(ref calib) => {
             CommandOptions::default()
                 .set_command(format!("Export,{}\0", calib))
-                .clone()
+                .finish()
         },
         ExportInfo => {
             CommandOptions::default()
                 .set_command("Export,?\0".to_string())
-                .clone()
+                .finish()
         },
         Import(ref calib) => {
             CommandOptions::default()
                 .set_command(format!("Import,{}\0", calib))
-                .clone()
+                .finish()
         },
         Factory => {
             CommandOptions::default()
                 .set_command("Factory\0".to_string())
-                .clone()
+                .finish()
         },
         Find => {
             CommandOptions::default()
                 .set_command("F\0".to_string())
-                .clone()
+                .finish()
         },
         LedOn => {
             CommandOptions::default()
                 .set_command("L,1\0".to_string())
-                .clone()
+                .finish()
         },
         LedOff => {
             CommandOptions::default()
                 .set_command("L,0\0".to_string())
-                .clone()
+                .finish()
         },
         LedState => {
             CommandOptions::default()
                 .set_command("L,?\0".to_string())
-                .clone()
+                .finish()
         },
         MemoryClear => {
             CommandOptions::default()
                 .set_command("M,clear\0".to_string())
-                .clone()
+                .finish()
         },
         MemoryRecall => {
             CommandOptions::default()
                 .set_command("M\0".to_string())
-                .clone()
+                .finish()
         },
         MemoryRecallLastLocation => {
             CommandOptions::default()
                 .set_command("M,?\0".to_string())
-                .clone()
+                .finish()
         },
         ProtocolLockEnable => {
             CommandOptions::default()
                 .set_command("Plock,1\0".to_string())
-                .clone()
+                .finish()
         },
         ProtocolLockDisable => {
             CommandOptions::default()
                 .set_command("Plock,0\0".to_string())
-                .clone()
+                .finish()
         },
         ProtocolLockStatus => {
             CommandOptions::default()
                 .set_command("Plock,?\0".to_string())
-                .clone()
+                .finish()
         },
         Reading => {
             CommandOptions::default()
                 .set_command("R\0".to_string())
-                .clone()
+                .finish()
         },
         ScaleCelsius => {
             CommandOptions::default()
                 .set_command("S,c\0".to_string())
-                .clone()
+                .finish()
         },
         ScaleKelvin => {
             CommandOptions::default()
                 .set_command("S,k\0".to_string())
-                .clone()
+                .finish()
         },
         ScaleFahrenheit => {
             CommandOptions::default()
                 .set_command("S,f\0".to_string())
-                .clone()
+                .finish()
         },
         ScaleStatus => {
             CommandOptions::default()
                 .set_command("S,?\0".to_string())
-                .clone()
+                .finish()
         },
         SetUart(ref baud) => {
             let rate = match *baud {
@@ -240,17 +243,17 @@ fn build_command(cmd: &TemperatureCommand) -> CommandOptions {
             };
             CommandOptions::default()
                 .set_command(format!("Baud,{}\0", rate))
-                .clone()
+                .finish()
         },
         Sleep => {
             CommandOptions::default()
                 .set_command("Sleep\0".to_string())
-                .clone()
+                .finish()
         },
         Status => {
             CommandOptions::default()
                 .set_command("Status\0".to_string())
-                .clone()
+                .finish()
         },
     }
 }
