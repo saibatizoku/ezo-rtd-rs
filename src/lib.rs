@@ -1,6 +1,12 @@
-/// I2C Commands for RTD EZO Chip, taken from their Datasheet.
-/// This chip is used for temperature measurement. It features
-/// calibration, sleep mode, scale, etc.
+//! I2C Commands for RTD EZO Chip, taken from their Datasheet.
+//! This chip is used for temperature measurement. It features
+//! calibration, sleep mode, scale, etc.
+#![recursion_limit = "1024"]
+#[macro_use]
+extern crate error_chain;
+
+pub mod errors;
+use errors::*;
 
 pub trait I2cCommand {
     fn to_bytes(&self) -> Vec<u8>;
