@@ -57,14 +57,67 @@ pub enum TemperatureCommand {
     Status,
 }
 
-fn command_string(cmd: &TemperatureCommand) -> String {
+#[derive(Clone,Debug,PartialEq,Eq)]
+pub enum ResponseCode {
+    NoDataExpected = 0xFF,
+    Pending = 0xFE,
+    Error = 0x02,
+    Success = 0x01,
+}
+
+#[derive(Clone,Debug,Default,PartialEq,Eq)]
+struct CommandResponse {
+    code: Option<ResponseCode>,
+    data: Option<[u8; 14]>
+}
+
+#[derive(Clone,Debug,Default,PartialEq,Eq)]
+struct CommandOptions {
+    command: String,
+    delay: Option<usize>,
+    reponse: Option<CommandResponse>,
+}
+
+impl CommandOptions {
+    /// Sets the ASCII string for the command to be sent
+    fn set_command(&mut self, command_str: String) -> &mut CommandOptions{
+        self.command = command_str; self
+    }
+    fn set_delay(&mut self, delay: usize) -> &mut CommandOptions{
+        self.delay = Some(delay); self
+    }
+}
+
+fn build_command(cmd: &TemperatureCommand) -> CommandOptions {
     use self::TemperatureCommand::*;
     match *cmd {
         CalibrationTemperature(temp) => {
-            format!("Cal,{:.*}\0", 2, temp)
+            CommandOptions::default()
+                .set_command(format!("Cal,{:.*}\0", 2, temp))
+                .set_delay(800)
+                .clone()
         },
         CalibrationClear => {
-            "Cal,clear\0".to_string()
+            CommandOptions::default()
+                .set_command("Cal,clear\0".to_string())
+                .set_delay(300)
+                .clone()
+        },
+        _ => {
+            println!("This is a placeholder");
+            CommandOptions::default()
+        }
+    }
+}
+
+fn command_string(cmd: &TemperatureCommand) -> String {
+    use self::TemperatureCommand::*;
+    match *cmd {
+        CalibrationTemperature(_) => {
+            build_command(cmd).command
+        },
+        CalibrationClear => {
+            build_command(cmd).command
         },
         CalibrationState => {
             "Cal,?\0".to_string()
