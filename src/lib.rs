@@ -24,7 +24,7 @@ pub enum Bauds {
     Bps115200 = 115200,
 }
 
-pub enum RtdEzoCommand {
+pub enum TemperatureCommand {
     CalibrationTemperature(f64),
     CalibrationClear,
     CalibrationState,
@@ -57,8 +57,8 @@ pub enum RtdEzoCommand {
     Status,
 }
 
-fn command_string(cmd: &RtdEzoCommand) -> String {
-    use self::RtdEzoCommand::*;
+fn command_string(cmd: &TemperatureCommand) -> String {
+    use self::TemperatureCommand::*;
     match *cmd {
         CalibrationTemperature(temp) => {
             format!("Cal,{:.*}\0", 2, temp)
@@ -163,7 +163,7 @@ fn command_string(cmd: &RtdEzoCommand) -> String {
     }
 }
 
-impl I2cCommand for RtdEzoCommand {
+impl I2cCommand for TemperatureCommand {
     fn to_bytes(&self) -> Vec<u8> {
         self.to_string().into_bytes()
     }
@@ -177,9 +177,9 @@ impl I2cCommand for RtdEzoCommand {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use super::RtdEzoCommand::*;
+    use super::TemperatureCommand::*;
 
-    fn temperature_command(cmd: RtdEzoCommand) -> String {
+    fn temperature_command(cmd: TemperatureCommand) -> String {
         cmd.to_string()
     }
 
