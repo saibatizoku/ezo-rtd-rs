@@ -12,6 +12,7 @@ pub trait I2cCommand {
     fn build(&self) -> CommandOptions;
 }
 
+#[derive(Debug)]
 pub enum Bauds {
     Bps300 = 300,
     Bps1200 = 1200,
@@ -23,6 +24,7 @@ pub enum Bauds {
     Bps115200 = 115200,
 }
 
+#[derive(Debug)]
 pub enum TemperatureCommand {
     CalibrationTemperature(f64),
     CalibrationClear,
@@ -65,7 +67,7 @@ pub enum ResponseCode {
 }
 
 #[derive(Clone,Debug,PartialEq,Eq)]
-enum CommandResponse {
+pub enum CommandResponse {
     Ack,
     CalibrationState,
     DataloggerInterval,
@@ -82,19 +84,26 @@ enum CommandResponse {
 }
 
 #[derive(Clone,Debug,Default,PartialEq,Eq)]
-struct CommandOptions {
-    command: String,
-    delay: Option<usize>,
-    response: Option<CommandResponse>,
+pub struct CommandOptions {
+    pub command: String,
+    pub delay: Option<u64>,
+    pub response: Option<CommandResponse>,
 }
 
-impl CommandOptions {
+pub trait CommandBuilder {
+    fn set_command(&mut self, command_str: String) -> &mut CommandOptions;
+    fn set_delay(&mut self, delay: u64) -> &mut CommandOptions;
+    fn set_response(&mut self, response: CommandResponse) -> &mut CommandOptions;
+    fn finish(&self) -> CommandOptions;
+}
+
+impl CommandBuilder for CommandOptions {
     /// Sets the ASCII string for the command to be sent
     fn set_command(&mut self, command_str: String) -> &mut CommandOptions {
         self.command = command_str;
         self
     }
-    fn set_delay(&mut self, delay: usize) -> &mut CommandOptions {
+    fn set_delay(&mut self, delay: u64) -> &mut CommandOptions {
         self.delay = Some(delay);
         self
     }
