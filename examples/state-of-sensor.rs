@@ -49,7 +49,6 @@ fn run() -> Result<()> {
     let device_path = format!("/dev/i2c-{}", I2C_BUS_ID);
     let mut dev = LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR)
         .chain_err(|| "Could not open I2C device")?;
-    run_command(&mut dev, TemperatureCommand::Sleep)?;
     run_command(&mut dev, TemperatureCommand::Status)?;
     run_command(&mut dev, TemperatureCommand::CalibrationState)?;
     run_command(&mut dev, TemperatureCommand::DataloggerInterval)?;
