@@ -122,8 +122,11 @@ impl CommandBuilder for CommandOptions {
             thread::sleep(Duration::from_millis(delay));
         }
         if let Some(_) = self.response {
-            dev.read(&mut data_buffer)
-                .chain_err(|| "Error reading from device")?;
+            if let Err(_) = dev.read(&mut data_buffer) {
+                thread::sleep(Duration::from_millis(300));
+                dev.read(&mut data_buffer)
+                    .chain_err(|| "Error reading from device")?;
+            };
             match data_buffer[0] {
                 255 => println!("No data expected."),
                 254 => println!("Pending"),
