@@ -30,20 +30,24 @@ fn run_command(cmd: TemperatureCommand) -> Result<()> {
         thread::sleep(Duration::from_millis(delay));
     }
     if let Some(_) = options.response {
-        dev.read(&mut data_buffer).unwrap();
+        dev.read(&mut data_buffer).chain_err(|| "Error reading from device")?;
         match data_buffer[0] {
             255 => println!("No data expected."),
             254 => println!("Pending"),
             2   => println!("Error"),
             1   => {
-                if let Some(eol) = data_buffer.into_iter().position(|&x| x == 0) {
-                    let data: String = data_buffer[1..eol].into_iter().map(|c| {
-                        (*c & !0x80) as char
-                    }).collect();
-                    println!("RESPONSE: {}", data);
-                } else {
-                    println!("RESPONSE: {:?}", String::from_utf8(Vec::from(&data_buffer[1..])).unwrap());
-                }
+                let data: String = match data_buffer.into_iter().position(|&x| x == 0) {
+                    Some(eol) => {
+                        data_buffer[1..eol].into_iter().map(|c| {
+                            (*c & !0x80) as char
+                        }).collect()
+                    },
+                    _ => {
+                        String::from_utf8(Vec::from(&data_buffer[1..]))
+                                .chain_err(|| "Data is not readable")?
+                    },
+                };
+                println!("RESPONSE: {}", data);
             },
             _ => println!("NO RESPONSE"),
         };
