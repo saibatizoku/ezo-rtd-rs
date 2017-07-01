@@ -346,71 +346,131 @@ mod tests {
     use super::TemperatureCommand::*;
 
     #[test]
-    fn temperature_command_uart_mode() {
+    fn temperature_command_uart_300() {
         let cmd = build_command(&SetUart(Bauds::Bps300));
         assert_eq!(cmd.command, "Baud,300\0");
+        assert_eq!(cmd.delay, None);
+        assert_eq!(cmd.response, None);
+    }
+
+    #[test]
+    fn temperature_command_uart_1200() {
         let cmd = build_command(&SetUart(Bauds::Bps1200));
         assert_eq!(cmd.command, "Baud,1200\0");
+        assert_eq!(cmd.delay, None);
+        assert_eq!(cmd.response, None);
+    }
+
+    #[test]
+    fn temperature_command_uart_2400() {
         let cmd = build_command(&SetUart(Bauds::Bps2400));
         assert_eq!(cmd.command, "Baud,2400\0");
+        assert_eq!(cmd.delay, None);
+        assert_eq!(cmd.response, None);
+    }
+
+    #[test]
+    fn temperature_command_uart_9600() {
         let cmd = build_command(&SetUart(Bauds::Bps9600));
         assert_eq!(cmd.command, "Baud,9600\0");
+        assert_eq!(cmd.delay, None);
+        assert_eq!(cmd.response, None);
+    }
+
+    #[test]
+    fn temperature_command_uart_19200() {
         let cmd = build_command(&SetUart(Bauds::Bps19200));
         assert_eq!(cmd.command, "Baud,19200\0");
+        assert_eq!(cmd.delay, None);
+        assert_eq!(cmd.response, None);
+    }
+
+    #[test]
+    fn temperature_command_uart_38400() {
         let cmd = build_command(&SetUart(Bauds::Bps38400));
         assert_eq!(cmd.command, "Baud,38400\0");
+        assert_eq!(cmd.delay, None);
+        assert_eq!(cmd.response, None);
+    }
+
+    #[test]
+    fn temperature_command_uart_57600() {
         let cmd = build_command(&SetUart(Bauds::Bps57600));
         assert_eq!(cmd.command, "Baud,57600\0");
+        assert_eq!(cmd.delay, None);
+        assert_eq!(cmd.response, None);
+    }
+
+    #[test]
+    fn temperature_command_uart_115200() {
         let cmd = build_command(&SetUart(Bauds::Bps115200));
         assert_eq!(cmd.command, "Baud,115200\0");
+        assert_eq!(cmd.delay, None);
+        assert_eq!(cmd.response, None);
     }
 
     #[test]
     fn temperature_command_calibration_temperature() {
         let cmd = build_command(&CalibrationTemperature(35.2459));
         assert_eq!(cmd.command, "Cal,35.25\0");
+        assert_eq!(cmd.delay, Some(1000));
+        assert_eq!(cmd.response, Some(CommandResponse::Ack));
     }
 
     #[test]
     fn temperature_command_calibration_clear() {
         let cmd = build_command(&CalibrationClear);
         assert_eq!(cmd.command, "Cal,clear\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::Ack));
     }
 
     #[test]
     fn temperature_command_calibration_state() {
         let cmd = build_command(&CalibrationState);
         assert_eq!(cmd.command, "Cal,?\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::CalibrationState));
     }
 
     #[test]
     fn temperature_command_data_logger_period() {
         let cmd = build_command(&DataloggerPeriod(10));
         assert_eq!(cmd.command, "D,10\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::Ack));
     }
 
     #[test]
     fn temperature_command_data_logger_disable() {
         let cmd = build_command(&DataloggerDisable);
         assert_eq!(cmd.command, "D,0\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::Ack));
     }
 
     #[test]
     fn temperature_command_data_logger_interval() {
         let cmd = build_command(&DataloggerInterval);
         assert_eq!(cmd.command, "D,?\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::DataloggerInterval));
     }
 
     #[test]
-    fn temperature_command_() {
+    fn temperature_command_change_device_address() {
         let cmd = build_command(&DeviceAddress(88));
         assert_eq!(cmd.command, "I2C,88\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, None);
     }
 
     #[test]
     fn temperature_command_device_information() {
         let cmd = build_command(&DeviceInformation);
         assert_eq!(cmd.command, "I\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::DeviceInformation));
     }
 
     #[test]
@@ -418,12 +478,16 @@ mod tests {
         let calibration_string = "ABCDEFGHIJKLMNO".to_string();
         let cmd = build_command(&Export(calibration_string));
         assert_eq!(cmd.command, "Export,ABCDEFGHIJKLMNO\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::Export));
     }
 
     #[test]
     fn temperature_command_export_info() {
         let cmd = build_command(&ExportInfo);
         assert_eq!(cmd.command, "Export,?\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::ExportInfo));
     }
 
     #[test]
@@ -431,6 +495,8 @@ mod tests {
         let calibration_string = "ABCDEFGHIJKLMNO".to_string();
         let cmd = build_command(&Import(calibration_string));
         assert_eq!(cmd.command, "Import,ABCDEFGHIJKLMNO\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, None);
     }
 
     #[test]
@@ -445,90 +511,120 @@ mod tests {
     fn temperature_command_find() {
         let cmd = build_command(&Find);
         assert_eq!(cmd.command, "F\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::Ack));
     }
 
     #[test]
     fn temperature_command_led_on() {
         let cmd = build_command(&LedOn);
         assert_eq!(cmd.command, "L,1\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::Ack));
     }
 
     #[test]
     fn temperature_command_led_off() {
         let cmd = build_command(&LedOff);
         assert_eq!(cmd.command, "L,0\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::Ack));
     }
 
     #[test]
     fn temperature_command_led_state() {
         let cmd = build_command(&LedState);
         assert_eq!(cmd.command, "L,?\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::LedState));
     }
 
     #[test]
     fn temperature_command_memory_clear() {
         let cmd = build_command(&MemoryClear);
         assert_eq!(cmd.command, "M,clear\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::Ack));
     }
 
     #[test]
     fn temperature_command_memory_recall() {
         let cmd = build_command(&MemoryRecall);
         assert_eq!(cmd.command, "M\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::MemoryRecall));
     }
 
     #[test]
     fn temperature_command_memory_recall_location() {
         let cmd = build_command(&MemoryRecallLastLocation);
         assert_eq!(cmd.command, "M,?\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::MemoryRecallLastLocation));
     }
 
     #[test]
     fn temperature_command_plock_enable() {
         let cmd = build_command(&ProtocolLockEnable);
         assert_eq!(cmd.command, "Plock,1\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::Ack));
     }
 
     #[test]
     fn temperature_command_plock_disable() {
         let cmd = build_command(&ProtocolLockDisable);
         assert_eq!(cmd.command, "Plock,0\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::Ack));
     }
 
     #[test]
     fn temperature_command_plock_status() {
         let cmd = build_command(&ProtocolLockState);
         assert_eq!(cmd.command, "Plock,?\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::ProtocolLockState));
     }
 
     #[test]
     fn temperature_command_reading() {
         let cmd = build_command(&Reading);
         assert_eq!(cmd.command, "R\0");
+        assert_eq!(cmd.delay, Some(600));
+        assert_eq!(cmd.response, Some(CommandResponse::Reading));
     }
 
     #[test]
     fn temperature_command_scale_celsius() {
         let cmd = build_command(&ScaleCelsius);
         assert_eq!(cmd.command, "S,c\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::Ack));
     }
 
     #[test]
     fn temperature_command_scale_kelvin() {
         let cmd = build_command(&ScaleKelvin);
         assert_eq!(cmd.command, "S,k\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::Ack));
     }
 
     #[test]
     fn temperature_command_scale_fahrenheit() {
         let cmd = build_command(&ScaleFahrenheit);
         assert_eq!(cmd.command, "S,f\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::Ack));
     }
 
     #[test]
     fn temperature_command_scale_status() {
         let cmd = build_command(&ScaleState);
         assert_eq!(cmd.command, "S,?\0");
+        assert_eq!(cmd.delay, Some(300));
+        assert_eq!(cmd.response, Some(CommandResponse::ScaleState));
     }
 
     #[test]
