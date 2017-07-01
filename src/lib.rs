@@ -122,25 +122,27 @@ impl CommandBuilder for CommandOptions {
             thread::sleep(Duration::from_millis(delay));
         }
         if let Some(_) = self.response {
-            dev.read(&mut data_buffer).chain_err(|| "Error reading from device")?;
+            dev.read(&mut data_buffer)
+                .chain_err(|| "Error reading from device")?;
             match data_buffer[0] {
                 255 => println!("No data expected."),
                 254 => println!("Pending"),
-                2   => println!("Error"),
-                1   => {
+                2 => println!("Error"),
+                1 => {
                     let data: String = match data_buffer.into_iter().position(|&x| x == 0) {
                         Some(eol) => {
-                            data_buffer[1..eol].into_iter().map(|c| {
-                                (*c & !0x80) as char
-                            }).collect()
-                        },
+                            data_buffer[1..eol]
+                                .into_iter()
+                                .map(|c| (*c & !0x80) as char)
+                                .collect()
+                        }
                         _ => {
                             String::from_utf8(Vec::from(&data_buffer[1..]))
-                                    .chain_err(|| "Data is not readable")?
-                        },
+                                .chain_err(|| "Data is not readable")?
+                        }
                     };
                     println!("RESPONSE: {}", data);
-                },
+                }
                 _ => println!("NO RESPONSE"),
             };
         }
@@ -232,12 +234,12 @@ impl I2cCommand for TemperatureCommand {
                     .finish()
             }
             Factory => opts.set_command("Factory\0".to_string()).finish(),
-                    Find => {
-                        opts.set_command("F\0".to_string())
-                            .set_delay(300)
-                            .set_response(CommandResponse::Ack)
-                            .finish()
-                    }
+            Find => {
+                opts.set_command("F\0".to_string())
+                    .set_delay(300)
+                    .set_response(CommandResponse::Ack)
+                    .finish()
+            }
             LedOn => {
                 opts.set_command("L,1\0".to_string())
                     .set_delay(300)

@@ -17,7 +17,9 @@ fn run() -> Result<()> {
         .chain_err(|| "Could not open I2C device")?;
     TemperatureCommand::Status.build().run(&mut dev)?;
     TemperatureCommand::CalibrationState.build().run(&mut dev)?;
-    TemperatureCommand::DataloggerInterval.build().run(&mut dev)?;
+    TemperatureCommand::DataloggerInterval
+        .build()
+        .run(&mut dev)?;
     TemperatureCommand::LedState.build().run(&mut dev)?;
     TemperatureCommand::Sleep.build().run(&mut dev)?;
     TemperatureCommand::ExportInfo.build().run(&mut dev)?;
