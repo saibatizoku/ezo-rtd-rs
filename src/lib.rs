@@ -66,7 +66,8 @@ pub enum ResponseCode {
 }
 
 #[derive(Clone,Debug,PartialEq,Eq)]
-enum ResponseData {
+enum CommandResponse {
+    Ack,
     CalibrationState,
     DataloggerInterval,
     DeviceInformation,
@@ -81,26 +82,23 @@ enum ResponseData {
     Status,
 }
 
-#[derive(Clone,Debug,PartialEq,Eq)]
-struct CommandResponse {
-    code: ResponseCode,
-    data: Option<ResponseData>
-}
-
 #[derive(Clone,Debug,Default,PartialEq,Eq)]
 struct CommandOptions {
     command: String,
     delay: Option<usize>,
-    reponse: Option<CommandResponse>,
+    response: Option<CommandResponse>,
 }
 
 impl CommandOptions {
     /// Sets the ASCII string for the command to be sent
-    fn set_command(&mut self, command_str: String) -> &mut CommandOptions{
+    fn set_command(&mut self, command_str: String) -> &mut CommandOptions {
         self.command = command_str; self
     }
-    fn set_delay(&mut self, delay: usize) -> &mut CommandOptions{
+    fn set_delay(&mut self, delay: usize) -> &mut CommandOptions {
         self.delay = Some(delay); self
+    }
+    fn set_response(&mut self, response: CommandResponse) -> &mut CommandOptions{
+        self.response = Some(response); self
     }
     fn finish(&self) -> CommandOptions {
         self.clone()
