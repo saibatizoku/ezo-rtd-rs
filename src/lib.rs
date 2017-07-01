@@ -46,12 +46,12 @@ pub enum TemperatureCommand {
     MemoryRecallLastLocation,
     ProtocolLockEnable,
     ProtocolLockDisable,
-    ProtocolLockStatus,
+    ProtocolLockState,
     Reading,
     ScaleCelsius,
     ScaleKelvin,
     ScaleFahrenheit,
-    ScaleStatus,
+    ScaleState,
     SetUart(Bauds),
     Sleep,
     Status,
@@ -220,7 +220,7 @@ fn build_command(cmd: &TemperatureCommand) -> CommandOptions {
                 .set_delay(300)
                 .finish()
         },
-        ProtocolLockStatus => {
+        ProtocolLockState => {
             CommandOptions::default()
                 .set_command("Plock,?\0".to_string())
                 .set_delay(300)
@@ -249,7 +249,7 @@ fn build_command(cmd: &TemperatureCommand) -> CommandOptions {
                 .set_delay(300)
                 .finish()
         },
-        ScaleStatus => {
+        ScaleState => {
             CommandOptions::default()
                 .set_command("S,?\0".to_string())
                 .set_delay(300)
@@ -458,7 +458,7 @@ mod tests {
 
     #[test]
     fn temperature_command_plock_status() {
-        let cmd = temperature_command(ProtocolLockStatus);
+        let cmd = temperature_command(ProtocolLockState);
         assert_eq!(cmd, "Plock,?\0");
     }
 
@@ -488,7 +488,7 @@ mod tests {
 
     #[test]
     fn temperature_command_scale_status() {
-        let cmd = temperature_command(ScaleStatus);
+        let cmd = temperature_command(ScaleState);
         assert_eq!(cmd, "S,?\0");
     }
 
