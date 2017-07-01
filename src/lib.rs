@@ -36,7 +36,7 @@ pub enum TemperatureCommand {
     DataloggerInterval,
     DeviceAddress(u16),
     DeviceInformation,
-    Export(String),
+    Export,
     ExportInfo,
     Import(String),
     Factory,
@@ -170,8 +170,8 @@ impl I2cCommand for TemperatureCommand {
                     .set_response(CommandResponse::DeviceInformation)
                     .finish()
             }
-            Export(ref calib) => {
-                opts.set_command(format!("Export,{}\0", calib))
+            Export => {
+                opts.set_command("Export\0".to_string())
                     .set_delay(300)
                     .set_response(CommandResponse::Export)
                     .finish()
@@ -437,9 +437,8 @@ mod tests {
 
     #[test]
     fn temperature_command_export() {
-        let calibration_string = "ABCDEFGHIJKLMNO".to_string();
-        let cmd = Export(calibration_string).build();
-        assert_eq!(cmd.command, "Export,ABCDEFGHIJKLMNO\0");
+        let cmd = Export.build();
+        assert_eq!(cmd.command, "Export\0");
         assert_eq!(cmd.delay, Some(300));
         assert_eq!(cmd.response, Some(CommandResponse::Export));
     }
