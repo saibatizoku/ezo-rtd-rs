@@ -1,5 +1,5 @@
 [package]
-name = "ezo-rtd"
+name = "ezo_rtd"
 version = "0.1.0"
 authors = ["Joaquín R <globojorro@gmail.com>"]
 
