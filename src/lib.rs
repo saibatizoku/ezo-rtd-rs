@@ -65,10 +65,26 @@ pub enum ResponseCode {
     Success = 0x01,
 }
 
-#[derive(Clone,Debug,Default,PartialEq,Eq)]
+#[derive(Clone,Debug,PartialEq,Eq)]
+enum ResponseData {
+    CalibrationState,
+    DataloggerInterval,
+    DeviceInformation,
+    ExportInfo,
+    Export,
+    LedState,
+    MemoryRecall,
+    MemoryRecallLastLocation,
+    ProtocolLockState,
+    Reading,
+    ScaleState,
+    Status,
+}
+
+#[derive(Clone,Debug,PartialEq,Eq)]
 struct CommandResponse {
     code: ResponseCode,
-    data: Option<[u8; 16]>
+    data: Option<ResponseData>
 }
 
 #[derive(Clone,Debug,Default,PartialEq,Eq)]
