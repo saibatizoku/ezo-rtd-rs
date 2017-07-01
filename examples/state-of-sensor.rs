@@ -53,6 +53,9 @@ fn run() -> Result<()> {
     run_command(&mut dev, TemperatureCommand::CalibrationState)?;
     run_command(&mut dev, TemperatureCommand::DataloggerInterval)?;
     run_command(&mut dev, TemperatureCommand::LedState)?;
+    run_command(&mut dev, TemperatureCommand::Sleep)?;
+    run_command(&mut dev, TemperatureCommand::Sleep)?;
+    run_command(&mut dev, TemperatureCommand::Status)?;
     Ok(())
 }
 
