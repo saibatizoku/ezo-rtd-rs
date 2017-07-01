@@ -21,7 +21,6 @@ fn run() -> Result<()> {
         .build()
         .run(&mut dev)?;
     TemperatureCommand::LedState.build().run(&mut dev)?;
-    TemperatureCommand::Sleep.build().run(&mut dev)?;
     TemperatureCommand::ExportInfo.build().run(&mut dev)?;
     TemperatureCommand::Export.build().run(&mut dev)?;
     TemperatureCommand::Export.build().run(&mut dev)?;
