@@ -14,48 +14,55 @@ use std::time::Duration;
 const I2C_BUS_ID: u8 = 1;
 const EZO_SENSOR_ADDR: u16 = 101; // could be specified as 0x65
 
-fn run_command(dev: &mut LinuxI2CDevice, cmd: TemperatureCommand) -> Result<()> {
+fn run_command(cmd: TemperatureCommand) -> Result<()> {
     let options = cmd.build();
     let mut data_buffer = [0u8; MAX_RESPONSE_LENGTH];
-    println!("Sending '{:#?}'", options.command);
-    dev.write(options.command.as_bytes()).chain_err(|| "Command could not be sent")?;
+    println!("COMMAND: {}", options.command);
+    let device_path = format!("/dev/i2c-{}", I2C_BUS_ID);
+    let mut dev = LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR)
+        .chain_err(|| "Could not open I2C device")?;
+    if let Err(_) = dev.write(options.command.as_bytes()) {
+        thread::sleep(Duration::from_millis(300));
+        dev.write(options.command.as_bytes())
+            .chain_err(|| "Command could not be sent")?;
+    };
     if let Some(delay) = options.delay {
         thread::sleep(Duration::from_millis(delay));
     }
-    if let Some(response) = options.response {
+    if let Some(_) = options.response {
         dev.read(&mut data_buffer).unwrap();
         match data_buffer[0] {
             255 => println!("No data expected."),
             254 => println!("Pending"),
             2   => println!("Error"),
             1   => {
-                println!("Success");
                 if let Some(eol) = data_buffer.into_iter().position(|&x| x == 0) {
                     let data: String = data_buffer[1..eol].into_iter().map(|c| {
                         (*c & !0x80) as char
                     }).collect();
-                    println!("Response: {}", data);
+                    println!("RESPONSE: {}", data);
                 } else {
-                    println!("Reading: {:?}", String::from_utf8(Vec::from(&data_buffer[1..])).unwrap());
+                    println!("RESPONSE: {:?}", String::from_utf8(Vec::from(&data_buffer[1..])).unwrap());
                 }
             },
-            _ => println!("No response"),
+            _ => println!("NO RESPONSE"),
         };
     }
+    println!();
     Ok(())
 }
 
 fn run() -> Result<()> {
-    let device_path = format!("/dev/i2c-{}", I2C_BUS_ID);
-    let mut dev = LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR)
-        .chain_err(|| "Could not open I2C device")?;
-    run_command(&mut dev, TemperatureCommand::Status)?;
-    run_command(&mut dev, TemperatureCommand::CalibrationState)?;
-    run_command(&mut dev, TemperatureCommand::DataloggerInterval)?;
-    run_command(&mut dev, TemperatureCommand::LedState)?;
-    run_command(&mut dev, TemperatureCommand::Sleep)?;
-    run_command(&mut dev, TemperatureCommand::Sleep)?;
-    run_command(&mut dev, TemperatureCommand::Status)?;
+    run_command(TemperatureCommand::Status)?;
+    run_command(TemperatureCommand::CalibrationState)?;
+    run_command(TemperatureCommand::DataloggerInterval)?;
+    run_command(TemperatureCommand::LedState)?;
+    run_command(TemperatureCommand::Sleep)?;
+    run_command(TemperatureCommand::ExportInfo)?;
+    run_command(TemperatureCommand::Export)?;
+    run_command(TemperatureCommand::Export)?;
+    run_command(TemperatureCommand::Export)?;
+    run_command(TemperatureCommand::Sleep)?;
     Ok(())
 }
 
