@@ -8,6 +8,8 @@ extern crate error_chain;
 pub mod errors;
 use errors::*;
 
+pub const MAX_RESPONSE_LENGTH: usize = 16;
+
 pub trait I2cCommand {
     fn build(&self) -> CommandOptions;
 }
