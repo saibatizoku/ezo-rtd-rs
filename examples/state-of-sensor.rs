@@ -15,17 +15,28 @@ fn run() -> Result<()> {
     let device_path = format!("/dev/i2c-{}", I2C_BUS_ID);
     let mut dev = LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR)
         .chain_err(|| "Could not open I2C device")?;
-    TemperatureCommand::Status.build().run(&mut dev)?;
-    TemperatureCommand::CalibrationState.build().run(&mut dev)?;
-    TemperatureCommand::DataloggerInterval
+    let mut response = String::new();
+    response += &TemperatureCommand::Status.build().run(&mut dev)?;
+    response += &"\n";
+    response += &TemperatureCommand::CalibrationState.build().run(&mut dev)?;
+    response += &"\n";
+    response += &TemperatureCommand::DataloggerInterval
         .build()
         .run(&mut dev)?;
-    TemperatureCommand::LedState.build().run(&mut dev)?;
-    TemperatureCommand::ExportInfo.build().run(&mut dev)?;
-    TemperatureCommand::Export.build().run(&mut dev)?;
-    TemperatureCommand::Export.build().run(&mut dev)?;
-    TemperatureCommand::Export.build().run(&mut dev)?;
-    TemperatureCommand::Sleep.build().run(&mut dev)?;
+    response += &"\n";
+    response += &TemperatureCommand::LedState.build().run(&mut dev)?;
+    response += &"\n";
+    response += &TemperatureCommand::ExportInfo.build().run(&mut dev)?;
+    response += &"\n";
+    response += &TemperatureCommand::Export.build().run(&mut dev)?;
+    response += &"\n";
+    response += &TemperatureCommand::Export.build().run(&mut dev)?;
+    response += &"\n";
+    response += &TemperatureCommand::Export.build().run(&mut dev)?;
+    response += &"\n";
+    response += &TemperatureCommand::Sleep.build().run(&mut dev)?;
+    println!("responses:");
+    println!("{}", response);
     Ok(())
 }
 
