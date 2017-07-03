@@ -6,7 +6,8 @@
 extern crate error_chain;
 extern crate i2cdev;
 
-pub mod errors;
+/// Use error-chain.
+pub mod errors { error_chain! {} }
 
 use errors::*;
 use i2cdev::core::I2CDevice;
@@ -14,12 +15,15 @@ use i2cdev::linux::LinuxI2CDevice;
 use std::thread;
 use std::time::Duration;
 
+/// Maximum ascii-character response size + 2
 pub const MAX_RESPONSE_LENGTH: usize = 16;
 
+/// Useful for properly building I2C parameters from a command.
 pub trait I2cCommand {
     fn build(&self) -> CommandOptions;
 }
 
+/// Allowable baudrates used when changing the chip to UART mode.
 #[derive(Debug)]
 pub enum Bauds {
     Bps300 = 300,
@@ -32,6 +36,7 @@ pub enum Bauds {
     Bps115200 = 115200,
 }
 
+/// Commands for interacting with the RTD EZO chip.
 #[derive(Debug)]
 pub enum TemperatureCommand {
     CalibrationTemperature(f64),
@@ -66,6 +71,7 @@ pub enum TemperatureCommand {
     Status,
 }
 
+/// Known response codes from EZO chip interactions.
 #[derive(Clone,Debug,PartialEq,Eq)]
 pub enum ResponseCode {
     NoDataExpected = 0xFF,
@@ -74,6 +80,7 @@ pub enum ResponseCode {
     Success = 0x01,
 }
 
+/// Allowed responses from I2C read interactions.
 #[derive(Clone,Debug,PartialEq,Eq)]
 pub enum CommandResponse {
     Ack,
@@ -91,6 +98,7 @@ pub enum CommandResponse {
     Status,
 }
 
+/// Command-related parameters used to build I2C write/read interactions.
 #[derive(Clone,Debug,Default,PartialEq,Eq)]
 pub struct CommandOptions {
     pub command: String,
@@ -98,6 +106,7 @@ pub struct CommandOptions {
     pub response: Option<CommandResponse>,
 }
 
+/// Builds commands.
 pub trait CommandBuilder {
     fn finish(&self) -> CommandOptions;
     fn run(&self, dev: &mut LinuxI2CDevice) -> Result<()>;
