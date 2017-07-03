@@ -1,9 +1,11 @@
 #![recursion_limit = "1024"]
 //! An example that takes readings from the RTD EZO chip in a loop.
 //!
+extern crate chrono;
 extern crate ezo_rtd;
 extern crate i2cdev;
 
+use chrono::{DateTime, Utc};
 use ezo_rtd::errors::*;
 use ezo_rtd::{CommandBuilder, I2cCommand, TemperatureCommand};
 use i2cdev::linux::LinuxI2CDevice;
@@ -18,8 +20,13 @@ fn run() -> Result<()> {
     let mut dev = LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR)
         .chain_err(|| "Could not open I2C device")?;
     loop {
-        TemperatureCommand::Reading.build().run(&mut dev)?;
+        let temp = TemperatureCommand::Reading.build().run(&mut dev)?;
         TemperatureCommand::Sleep.build().run(&mut dev)?;
+        let dt: DateTime<Utc> = Utc::now();
+        println!("{:?},{:.*},°C",
+                 dt,
+                 2,
+                 temp.parse::<f64>().chain_err(|| "unparsable temperature")?);
         thread::sleep(Duration::from_millis(9400));
     }
 }
