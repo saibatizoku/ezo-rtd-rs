@@ -18,7 +18,7 @@ use common::{BpsRate, CommandBuilder, CommandOptions, CommandResponse, I2cComman
 #[derive(Debug)]
 pub enum TemperatureCommand {
     // 'Baud' command
-    Baud(BspRate),
+    Baud(BpsRate),
     // 'Cal' command
     CalibrationTemperature(f64),
     CalibrationClear,
@@ -235,14 +235,14 @@ impl I2cCommand for TemperatureCommand {
             }
             Baud(ref baud) => {
                 let rate = match *baud {
-                    BspRate::Bps300 => BspRate::Bps300 as u32,
-                    BspRate::Bps1200 => BspRate::Bps1200 as u32,
-                    BspRate::Bps2400 => BspRate::Bps2400 as u32,
-                    BspRate::Bps9600 => BspRate::Bps9600 as u32,
-                    BspRate::Bps19200 => BspRate::Bps19200 as u32,
-                    BspRate::Bps38400 => BspRate::Bps38400 as u32,
-                    BspRate::Bps57600 => BspRate::Bps57600 as u32,
-                    BspRate::Bps115200 => BspRate::Bps115200 as u32,
+                    BpsRate::Bps300 => BpsRate::Bps300 as u32,
+                    BpsRate::Bps1200 => BpsRate::Bps1200 as u32,
+                    BpsRate::Bps2400 => BpsRate::Bps2400 as u32,
+                    BpsRate::Bps9600 => BpsRate::Bps9600 as u32,
+                    BpsRate::Bps19200 => BpsRate::Bps19200 as u32,
+                    BpsRate::Bps38400 => BpsRate::Bps38400 as u32,
+                    BpsRate::Bps57600 => BpsRate::Bps57600 as u32,
+                    BpsRate::Bps115200 => BpsRate::Bps115200 as u32,
                 };
                 opts.set_command(format!("Baud,{}\0", rate)).finish()
             }
@@ -264,7 +264,7 @@ mod tests {
 
     #[test]
     fn build_command_uart_300() {
-        let cmd = Baud(BspRate::Bps300).build();
+        let cmd = Baud(BpsRate::Bps300).build();
         assert_eq!(cmd.command, "Baud,300\0");
         assert_eq!(cmd.delay, None);
         assert_eq!(cmd.response, None);
@@ -272,7 +272,7 @@ mod tests {
 
     #[test]
     fn build_command_uart_1200() {
-        let cmd = Baud(BspRate::Bps1200).build();
+        let cmd = Baud(BpsRate::Bps1200).build();
         assert_eq!(cmd.command, "Baud,1200\0");
         assert_eq!(cmd.delay, None);
         assert_eq!(cmd.response, None);
@@ -280,7 +280,7 @@ mod tests {
 
     #[test]
     fn build_command_uart_2400() {
-        let cmd = Baud(BspRate::Bps2400).build();
+        let cmd = Baud(BpsRate::Bps2400).build();
         assert_eq!(cmd.command, "Baud,2400\0");
         assert_eq!(cmd.delay, None);
         assert_eq!(cmd.response, None);
@@ -288,7 +288,7 @@ mod tests {
 
     #[test]
     fn build_command_uart_9600() {
-        let cmd = Baud(BspRate::Bps9600).build();
+        let cmd = Baud(BpsRate::Bps9600).build();
         assert_eq!(cmd.command, "Baud,9600\0");
         assert_eq!(cmd.delay, None);
         assert_eq!(cmd.response, None);
@@ -296,7 +296,7 @@ mod tests {
 
     #[test]
     fn build_command_uart_19200() {
-        let cmd = Baud(BspRate::Bps19200).build();
+        let cmd = Baud(BpsRate::Bps19200).build();
         assert_eq!(cmd.command, "Baud,19200\0");
         assert_eq!(cmd.delay, None);
         assert_eq!(cmd.response, None);
@@ -304,7 +304,7 @@ mod tests {
 
     #[test]
     fn build_command_uart_38400() {
-        let cmd = Baud(BspRate::Bps38400).build();
+        let cmd = Baud(BpsRate::Bps38400).build();
         assert_eq!(cmd.command, "Baud,38400\0");
         assert_eq!(cmd.delay, None);
         assert_eq!(cmd.response, None);
@@ -312,7 +312,7 @@ mod tests {
 
     #[test]
     fn build_command_uart_57600() {
-        let cmd = Baud(BspRate::Bps57600).build();
+        let cmd = Baud(BpsRate::Bps57600).build();
         assert_eq!(cmd.command, "Baud,57600\0");
         assert_eq!(cmd.delay, None);
         assert_eq!(cmd.response, None);
@@ -320,7 +320,7 @@ mod tests {
 
     #[test]
     fn build_command_uart_115200() {
-        let cmd = Baud(BspRate::Bps115200).build();
+        let cmd = Baud(BpsRate::Bps115200).build();
         assert_eq!(cmd.command, "Baud,115200\0");
         assert_eq!(cmd.delay, None);
         assert_eq!(cmd.response, None);
