@@ -25,7 +25,7 @@ pub trait I2cCommand {
 
 /// Allowable baudrates used when changing the chip to UART mode.
 #[derive(Debug)]
-pub enum Bauds {
+pub enum BspRate {
     Bps300 = 300,
     Bps1200 = 1200,
     Bps2400 = 2400,
@@ -39,6 +39,7 @@ pub enum Bauds {
 /// Commands for interacting with the RTD EZO chip.
 #[derive(Debug)]
 pub enum TemperatureCommand {
+    // 'Cal' command
     CalibrationTemperature(f64),
     CalibrationClear,
     CalibrationState,
@@ -66,7 +67,7 @@ pub enum TemperatureCommand {
     ScaleKelvin,
     ScaleFahrenheit,
     ScaleState,
-    SetUart(Bauds),
+    Baud(BspRate),
     Sleep,
     Status,
 }
@@ -336,16 +337,16 @@ impl I2cCommand for TemperatureCommand {
                     .set_response(CommandResponse::ScaleState)
                     .finish()
             }
-            SetUart(ref baud) => {
+            Baud(ref baud) => {
                 let rate = match *baud {
-                    Bauds::Bps300 => Bauds::Bps300 as u32,
-                    Bauds::Bps1200 => Bauds::Bps1200 as u32,
-                    Bauds::Bps2400 => Bauds::Bps2400 as u32,
-                    Bauds::Bps9600 => Bauds::Bps9600 as u32,
-                    Bauds::Bps19200 => Bauds::Bps19200 as u32,
-                    Bauds::Bps38400 => Bauds::Bps38400 as u32,
-                    Bauds::Bps57600 => Bauds::Bps57600 as u32,
-                    Bauds::Bps115200 => Bauds::Bps115200 as u32,
+                    BspRate::Bps300 => BspRate::Bps300 as u32,
+                    BspRate::Bps1200 => BspRate::Bps1200 as u32,
+                    BspRate::Bps2400 => BspRate::Bps2400 as u32,
+                    BspRate::Bps9600 => BspRate::Bps9600 as u32,
+                    BspRate::Bps19200 => BspRate::Bps19200 as u32,
+                    BspRate::Bps38400 => BspRate::Bps38400 as u32,
+                    BspRate::Bps57600 => BspRate::Bps57600 as u32,
+                    BspRate::Bps115200 => BspRate::Bps115200 as u32,
                 };
                 opts.set_command(format!("Baud,{}\0", rate)).finish()
             }
@@ -367,7 +368,7 @@ mod tests {
 
     #[test]
     fn build_command_uart_300() {
-        let cmd = SetUart(Bauds::Bps300).build();
+        let cmd = Baud(BspRate::Bps300).build();
         assert_eq!(cmd.command, "Baud,300\0");
         assert_eq!(cmd.delay, None);
         assert_eq!(cmd.response, None);
@@ -375,7 +376,7 @@ mod tests {
 
     #[test]
     fn build_command_uart_1200() {
-        let cmd = SetUart(Bauds::Bps1200).build();
+        let cmd = Baud(BspRate::Bps1200).build();
         assert_eq!(cmd.command, "Baud,1200\0");
         assert_eq!(cmd.delay, None);
         assert_eq!(cmd.response, None);
@@ -383,7 +384,7 @@ mod tests {
 
     #[test]
     fn build_command_uart_2400() {
-        let cmd = SetUart(Bauds::Bps2400).build();
+        let cmd = Baud(BspRate::Bps2400).build();
         assert_eq!(cmd.command, "Baud,2400\0");
         assert_eq!(cmd.delay, None);
         assert_eq!(cmd.response, None);
@@ -391,7 +392,7 @@ mod tests {
 
     #[test]
     fn build_command_uart_9600() {
-        let cmd = SetUart(Bauds::Bps9600).build();
+        let cmd = Baud(BspRate::Bps9600).build();
         assert_eq!(cmd.command, "Baud,9600\0");
         assert_eq!(cmd.delay, None);
         assert_eq!(cmd.response, None);
@@ -399,7 +400,7 @@ mod tests {
 
     #[test]
     fn build_command_uart_19200() {
-        let cmd = SetUart(Bauds::Bps19200).build();
+        let cmd = Baud(BspRate::Bps19200).build();
         assert_eq!(cmd.command, "Baud,19200\0");
         assert_eq!(cmd.delay, None);
         assert_eq!(cmd.response, None);
@@ -407,7 +408,7 @@ mod tests {
 
     #[test]
     fn build_command_uart_38400() {
-        let cmd = SetUart(Bauds::Bps38400).build();
+        let cmd = Baud(BspRate::Bps38400).build();
         assert_eq!(cmd.command, "Baud,38400\0");
         assert_eq!(cmd.delay, None);
         assert_eq!(cmd.response, None);
@@ -415,7 +416,7 @@ mod tests {
 
     #[test]
     fn build_command_uart_57600() {
-        let cmd = SetUart(Bauds::Bps57600).build();
+        let cmd = Baud(BspRate::Bps57600).build();
         assert_eq!(cmd.command, "Baud,57600\0");
         assert_eq!(cmd.delay, None);
         assert_eq!(cmd.response, None);
@@ -423,7 +424,7 @@ mod tests {
 
     #[test]
     fn build_command_uart_115200() {
-        let cmd = SetUart(Bauds::Bps115200).build();
+        let cmd = Baud(BspRate::Bps115200).build();
         assert_eq!(cmd.command, "Baud,115200\0");
         assert_eq!(cmd.delay, None);
         assert_eq!(cmd.response, None);
