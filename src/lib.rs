@@ -12,7 +12,7 @@ pub mod common;
 /// Use error-chain.
 pub mod errors { error_chain! {} }
 
-use common::{BpsRate, CommandBuilder, CommandOptions, CommandResponse, I2cCommand};
+pub use common::{BpsRate, CommandBuilder, CommandOptions, CommandResponse, I2cCommand};
 
 /// Commands for interacting with the RTD EZO chip.
 #[derive(Debug)]
