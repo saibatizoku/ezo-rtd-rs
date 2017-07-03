@@ -39,36 +39,50 @@ pub enum BspRate {
 /// Commands for interacting with the RTD EZO chip.
 #[derive(Debug)]
 pub enum TemperatureCommand {
+    // 'Baud' command
+    Baud(BspRate),
     // 'Cal' command
     CalibrationTemperature(f64),
     CalibrationClear,
     CalibrationState,
-    DataloggerPeriod(u16),
-    DataloggerDisable,
-    DataloggerInterval,
-    DeviceAddress(u16),
-    DeviceInformation,
+    // 'Export/Import' command
     Export,
     ExportInfo,
     Import(String),
+    // 'D' command
+    DataloggerPeriod(u16),
+    DataloggerDisable,
+    DataloggerInterval,
+    // 'Factory' command
     Factory,
+    // 'Find' command
     Find,
+    // 'I2C' command
+    DeviceAddress(u16),
+    // 'I' command
+    DeviceInformation,
+    // 'L' command
     LedOn,
     LedOff,
     LedState,
+    // 'M' command
     MemoryClear,
     MemoryRecall,
     MemoryRecallLastLocation,
+    // 'Plock' command
     ProtocolLockEnable,
     ProtocolLockDisable,
     ProtocolLockState,
+    // 'R' command
     Reading,
+    // 'S' command
     ScaleCelsius,
     ScaleKelvin,
     ScaleFahrenheit,
     ScaleState,
-    Baud(BspRate),
+    // 'Sleep' command
     Sleep,
+    // 'Status' command
     Status,
 }
 
