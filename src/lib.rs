@@ -10,7 +10,9 @@ extern crate i2cdev;
 pub mod common;
 
 /// Use error-chain.
-pub mod errors { error_chain! {} }
+pub mod errors {
+    error_chain!{}
+}
 
 pub use common::{BpsRate, CommandBuilder, CommandOptions, CommandResponse, I2cCommand};
 

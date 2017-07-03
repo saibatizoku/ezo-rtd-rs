@@ -49,7 +49,7 @@ pub enum CommandResponse {
 /// Builds commands.
 pub trait CommandBuilder {
     fn finish(&self) -> CommandOptions;
-    fn run(&self, dev: &mut LinuxI2CDevice) -> Result<()>;
+    fn run(&self, dev: &mut LinuxI2CDevice) -> Result<String>;
     fn set_command(&mut self, command_str: String) -> &mut CommandOptions;
     fn set_delay(&mut self, delay: u64) -> &mut CommandOptions;
     fn set_response(&mut self, response: CommandResponse) -> &mut CommandOptions;
@@ -59,9 +59,8 @@ impl CommandBuilder for CommandOptions {
     fn finish(&self) -> CommandOptions {
         self.clone()
     }
-    fn run(&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+    fn run(&self, dev: &mut LinuxI2CDevice) -> Result<String> {
         let mut data_buffer = [0u8; MAX_RESPONSE_LENGTH];
-        println!("COMMAND: {}", self.command);
         if let Err(_) = dev.write(self.command.as_bytes()) {
             thread::sleep(Duration::from_millis(300));
             dev.write(self.command.as_bytes())
@@ -93,14 +92,14 @@ impl CommandBuilder for CommandOptions {
                                 .chain_err(|| "Data is not readable")?
                         }
                     };
-                    println!("RESPONSE: {}", data);
+                    return Ok(data);
                 }
                 _ => println!("NO RESPONSE"),
             };
         }
-        println!();
-        Ok(())
+        Ok(String::new())
     }
+
     /// Sets the ASCII string for the command to be sent
     fn set_command(&mut self, command_str: String) -> &mut CommandOptions {
         self.command = command_str;
