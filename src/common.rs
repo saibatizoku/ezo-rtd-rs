@@ -91,8 +91,8 @@ impl CommandBuilder for CommandOptions {
                 ResponseCode::DeviceError => println!("Error"),
                 ResponseCode::Success => {
                     return Ok(String::from_utf8(parse_data_ascii_bytes(&data_buffer[1..]))
-                        .chain_err(|| "Data is not parsable")?)
-                },
+                                  .chain_err(|| "Data is not parsable")?)
+                }
                 ResponseCode::UnknownError => println!("NO RESPONSE"),
             };
         }

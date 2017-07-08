@@ -15,7 +15,7 @@ pub mod errors {
     error_chain!{}
 }
 
-use ezo_common::{BpsRate};
+use ezo_common::BpsRate;
 pub use common::{CommandBuilder, CommandOptions, CommandResponse, I2cCommand};
 
 /// Commands for interacting with the RTD EZO chip.
