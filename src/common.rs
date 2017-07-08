@@ -135,6 +135,34 @@ mod tests {
     use super::*;
 
     #[test]
+    fn process_no_data_response_code() {
+        assert_eq!(response_code(255), ResponseCode::NoDataExpected);
+    }
+
+    #[test]
+    fn process_pending_response_code() {
+        assert_eq!(response_code(254), ResponseCode::Pending);
+    }
+
+    #[test]
+    fn process_error_response_code() {
+        assert_eq!(response_code(2), ResponseCode::DeviceError);
+    }
+
+    #[test]
+    fn process_success_response_code() {
+        assert_eq!(response_code(1), ResponseCode::Success);
+    }
+
+    #[test]
+    fn process_unknown_response_code() {
+        assert_eq!(response_code(0), ResponseCode::UnknownError);
+        assert_eq!(response_code(16), ResponseCode::UnknownError);
+        assert_eq!(response_code(156), ResponseCode::UnknownError);
+        assert_eq!(response_code(256), ResponseCode::UnknownError);
+    }
+
+    #[test]
     fn parsing_nonzeros_response() {
         let data: [u8; 0] = [];
         let parsed = parse_data_ascii_bytes(&data);
