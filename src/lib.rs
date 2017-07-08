@@ -66,15 +66,6 @@ pub enum TemperatureCommand {
     Status,
 }
 
-/// Known response codes from EZO chip interactions.
-#[derive(Clone,Debug,PartialEq,Eq)]
-pub enum ResponseCode {
-    NoDataExpected = 0xFF,
-    Pending = 0xFE,
-    Error = 0x02,
-    Success = 0x01,
-}
-
 impl I2cCommand for TemperatureCommand {
     fn build(&self) -> CommandOptions {
         use self::TemperatureCommand::*;

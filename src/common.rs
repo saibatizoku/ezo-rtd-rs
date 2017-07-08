@@ -20,6 +20,16 @@ pub enum BpsRate {
     Bps115200 = 115200,
 }
 
+/// Known response codes from EZO chip interactions.
+#[derive(Clone,Debug,PartialEq,Eq)]
+pub enum ResponseCode {
+    NoDataExpected = 0xFF,
+    Pending = 0xFE,
+    DeviceError = 0x02,
+    Success = 0x01,
+    UnknownError = 0x00, // This code is NOT implemented by the EZO chips
+}
+
 /// Command-related parameters used to build I2C write/read interactions.
 #[derive(Clone,Debug,Default,PartialEq,Eq)]
 pub struct CommandOptions {
@@ -118,4 +128,53 @@ impl CommandBuilder for CommandOptions {
 /// Useful for properly building I2C parameters from a command.
 pub trait I2cCommand {
     fn build(&self) -> CommandOptions;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parsing_nonzeros_response() {
+        let data: [u8; 0] = [];
+        let parsed = parse_data_ascii_bytes(&data);
+        assert_eq!(parsed.len(), 0);
+        let data: [u8; 6] = [0, 98, 99, 65, 66, 67];
+        let parsed = parse_data_ascii_bytes(&data);
+        assert_eq!(parsed.len(), 0);
+        let data: [u8; 6] = [97, 98, 0, 65, 66, 67];
+        let parsed = parse_data_ascii_bytes(&data);
+        assert_eq!(parsed.len(), 2);
+        let data: [u8; 6] = [97, 98, 99, 65, 66, 67];
+        let parsed = parse_data_ascii_bytes(&data);
+        assert_eq!(parsed.len(), 6);
+    }
+
+    #[test]
+    fn parsing_abc_response() {
+        let data: [u8; 6] = [97, 98, 99, 65, 66, 67];
+        let parsed = String::from_utf8(parse_data_ascii_bytes(&data)).unwrap();
+        assert_eq!(&parsed, "abcABC");
+    }
+
+    #[test]
+    fn parsing_empty_response() {
+        let data: [u8; 3] = [0, 0, 0];
+        let parsed = String::from_utf8(parse_data_ascii_bytes(&data)).unwrap();
+        assert_eq!(&parsed, "");
+    }
+
+    #[test]
+    fn parsing_non_flipped_data_response() {
+        let data: [u8; 11] = [63, 73, 44, 112, 72, 44, 49, 46, 57, 56, 0];
+        let parsed = String::from_utf8(parse_data_ascii_bytes(&data)).unwrap();
+        assert_eq!(&parsed, "?I,pH,1.98");
+    }
+
+    #[test]
+    fn parsing_flipped_data_response() {
+        let data: [u8; 11] = [63, 73, 172, 112, 200, 172, 49, 46, 57, 56, 0];
+        let parsed = String::from_utf8(parse_data_ascii_bytes(&data)).unwrap();
+        assert_eq!(&parsed, "?I,pH,1.98");
+    }
 }
