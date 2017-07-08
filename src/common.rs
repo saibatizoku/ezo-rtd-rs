@@ -58,11 +58,11 @@ pub enum CommandResponse {
 
 /// Builds commands.
 pub trait CommandBuilder {
-    fn finish(&self) -> CommandOptions;
+    fn finish(&self) -> Self;
     fn run(&self, dev: &mut LinuxI2CDevice) -> Result<String>;
-    fn set_command(&mut self, command_str: String) -> &mut CommandOptions;
-    fn set_delay(&mut self, delay: u64) -> &mut CommandOptions;
-    fn set_response(&mut self, response: CommandResponse) -> &mut CommandOptions;
+    fn set_command(&mut self, command_str: String) -> &mut Self;
+    fn set_delay(&mut self, delay: u64) -> &mut Self;
+    fn set_response(&mut self, response: CommandResponse) -> &mut Self;
 }
 
 impl CommandBuilder for CommandOptions {
