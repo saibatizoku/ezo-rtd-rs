@@ -70,7 +70,6 @@ impl CommandBuilder for CommandOptions {
         self.clone()
     }
     fn run(&self, dev: &mut LinuxI2CDevice) -> Result<String> {
-        let mut data_buffer = [0u8; MAX_RESPONSE_LENGTH];
         if let Err(_) = dev.write(self.command.as_bytes()) {
             thread::sleep(Duration::from_millis(300));
             dev.write(self.command.as_bytes())
@@ -80,31 +79,21 @@ impl CommandBuilder for CommandOptions {
             thread::sleep(Duration::from_millis(delay));
         }
         if let Some(_) = self.response {
+            let mut data_buffer = [0u8; MAX_RESPONSE_LENGTH];
             if let Err(_) = dev.read(&mut data_buffer) {
                 thread::sleep(Duration::from_millis(300));
                 dev.read(&mut data_buffer)
                     .chain_err(|| "Error reading from device")?;
             };
-            match data_buffer[0] {
-                255 => println!("No data expected."),
-                254 => println!("Pending"),
-                2 => println!("Error"),
-                1 => {
-                    let data: String = match data_buffer.into_iter().position(|&x| x == 0) {
-                        Some(eol) => {
-                            data_buffer[1..eol]
-                                .into_iter()
-                                .map(|c| (*c & !0x80) as char)
-                                .collect()
-                        }
-                        _ => {
-                            String::from_utf8(Vec::from(&data_buffer[1..]))
-                                .chain_err(|| "Data is not readable")?
-                        }
-                    };
-                    return Ok(data);
-                }
-                _ => println!("NO RESPONSE"),
+            match response_code(data_buffer[0]) {
+                ResponseCode::NoDataExpected => println!("No data expected."),
+                ResponseCode::Pending => println!("Pending"),
+                ResponseCode::DeviceError => println!("Error"),
+                ResponseCode::Success => {
+                    return Ok(String::from_utf8(parse_data_ascii_bytes(&data_buffer[1..]))
+                        .chain_err(|| "Data is not parsable")?)
+                },
+                ResponseCode::UnknownError => println!("NO RESPONSE"),
             };
         }
         Ok(String::new())
@@ -128,6 +117,23 @@ impl CommandBuilder for CommandOptions {
 /// Useful for properly building I2C parameters from a command.
 pub trait I2cCommand {
     fn build(&self) -> CommandOptions;
+}
+
+/// Crude parser for the data string sent by the EZO chip.
+pub fn parse_data_ascii_bytes(data_buffer: &[u8]) -> Vec<u8> {
+    match data_buffer.iter().position(|&x| x == 0) {
+        Some(len) => read_hardware_buffer(&data_buffer[..len], true),
+        _ => read_hardware_buffer(&data_buffer[..], true),
+    }
+}
+
+/// Read buffer from the hardware. Accepts a `flipping` flag for glitchy hardware.
+pub fn read_hardware_buffer(buf: &[u8], flipping: bool) -> Vec<u8> {
+    if flipping {
+        buf.iter().map(|buf| (*buf & !0x80)).collect()
+    } else {
+        Vec::from(&buf[..])
+    }
 }
 
 /// Determines the response code sent by the EZO chip.
