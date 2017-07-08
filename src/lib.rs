@@ -4,6 +4,7 @@
 #![recursion_limit = "1024"]
 #[macro_use]
 extern crate error_chain;
+extern crate ezo_common;
 extern crate i2cdev;
 
 /// Code common to EZO chips
@@ -14,7 +15,8 @@ pub mod errors {
     error_chain!{}
 }
 
-pub use common::{BpsRate, CommandBuilder, CommandOptions, CommandResponse, I2cCommand};
+use ezo_common::{BpsRate};
+pub use common::{CommandBuilder, CommandOptions, CommandResponse, I2cCommand};
 
 /// Commands for interacting with the RTD EZO chip.
 #[derive(Debug)]
