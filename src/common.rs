@@ -130,6 +130,18 @@ pub trait I2cCommand {
     fn build(&self) -> CommandOptions;
 }
 
+/// Determines the response code sent by the EZO chip.
+pub fn response_code(code_byte: u8) -> ResponseCode {
+    use self::ResponseCode::*;
+    match code_byte {
+        x if x == NoDataExpected as u8 => NoDataExpected,
+        x if x == Pending as u8 => Pending,
+        x if x == DeviceError as u8 => DeviceError,
+        x if x == Success as u8 => Success,
+        _ => UnknownError,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
