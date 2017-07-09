@@ -20,7 +20,9 @@ fn run() -> Result<()> {
     let mut dev = LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR)
         .chain_err(|| "Could not open I2C device")?;
     loop {
-        let temp = TemperatureCommand::Reading.build().run(&mut dev)?;
+        let mut builder = TemperatureCommand::Reading.build();
+        builder.run(&mut dev)?;
+        let temp = builder.parse_response()?;
         TemperatureCommand::Sleep.build().run(&mut dev)?;
         let dt: DateTime<Utc> = Utc::now();
         println!("{:?},{:.*},°C",

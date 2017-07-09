@@ -16,25 +16,21 @@ fn run() -> Result<()> {
     let mut dev = LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR)
         .chain_err(|| "Could not open I2C device")?;
     let mut response = String::new();
-    response += &TemperatureCommand::Status.build().run(&mut dev)?;
-    response += &"\n";
-    response += &TemperatureCommand::CalibrationState.build().run(&mut dev)?;
-    response += &"\n";
-    response += &TemperatureCommand::DataloggerInterval
-        .build()
-        .run(&mut dev)?;
-    response += &"\n";
-    response += &TemperatureCommand::LedState.build().run(&mut dev)?;
-    response += &"\n";
-    response += &TemperatureCommand::ExportInfo.build().run(&mut dev)?;
-    response += &"\n";
-    response += &TemperatureCommand::Export.build().run(&mut dev)?;
-    response += &"\n";
-    response += &TemperatureCommand::Export.build().run(&mut dev)?;
-    response += &"\n";
-    response += &TemperatureCommand::Export.build().run(&mut dev)?;
-    response += &"\n";
-    response += &TemperatureCommand::Sleep.build().run(&mut dev)?;
+    let commands = [TemperatureCommand::Status,
+                    TemperatureCommand::CalibrationState,
+                    TemperatureCommand::DataloggerInterval,
+                    TemperatureCommand::LedState,
+                    TemperatureCommand::ExportInfo,
+                    TemperatureCommand::Export,
+                    TemperatureCommand::Export,
+                    TemperatureCommand::Export,
+                    TemperatureCommand::Sleep];
+    for cmd in commands.iter() {
+        let mut builder = cmd.build();
+        builder.run(&mut dev)?;
+        response += &builder.parse_response()?;
+        response += &"\n";
+    }
     println!("responses:");
     println!("{}", response);
     Ok(())
