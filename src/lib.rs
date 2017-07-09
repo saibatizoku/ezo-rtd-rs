@@ -12,9 +12,15 @@ pub mod common;
 
 /// Use error-chain.
 pub mod errors {
-    error_chain!{}
+    use ezo_common;
+    error_chain!{
+        links {
+            Ezo(ezo_common::errors::Error, ezo_common::errors::ErrorKind);
+        }
+    }
 }
 
+use errors::*;
 use ezo_common::BpsRate;
 pub use common::{CommandBuilder, CommandOptions, CommandResponse, I2cCommand};
 
