@@ -1,5 +1,6 @@
 use errors::*;
-use ezo_common::{ResponseCode, parse_data_ascii_bytes, response_code};
+use ezo_common::{ResponseCode, parse_data_ascii_bytes, response_code, write_to_ezo,
+                 read_raw_buffer};
 use i2cdev::core::I2CDevice;
 use i2cdev::linux::LinuxI2CDevice;
 use std::thread;
@@ -14,6 +15,7 @@ pub struct CommandOptions {
     pub command: String,
     pub delay: Option<u64>,
     pub response: Option<CommandResponse>,
+    pub data: Option<Vec<u8>>,
 }
 
 /// Allowed responses from I2C read interactions.
@@ -36,45 +38,56 @@ pub enum CommandResponse {
 
 /// Builds commands.
 pub trait CommandBuilder {
+    fn delay(&self) -> Result<()>;
     fn finish(&self) -> Self;
-    fn run(&self, dev: &mut LinuxI2CDevice) -> Result<String>;
+    fn parse_response(&self) -> Result<String>;
+    fn read_response(&mut self, dev: &mut LinuxI2CDevice) -> Result<()>;
+    fn run(&mut self, dev: &mut LinuxI2CDevice) -> Result<()>;
     fn set_command(&mut self, command_str: String) -> &mut Self;
     fn set_delay(&mut self, delay: u64) -> &mut Self;
     fn set_response(&mut self, response: CommandResponse) -> &mut Self;
+    fn write(&mut self, dev: &mut LinuxI2CDevice) -> Result<()>;
 }
 
 impl CommandBuilder for CommandOptions {
+    fn delay(&self) -> Result<()> {
+        if let Some(delay) = self.delay {
+            thread::sleep(Duration::from_millis(delay));
+        };
+        Ok(())
+    }
     fn finish(&self) -> CommandOptions {
         self.clone()
     }
-    fn run(&self, dev: &mut LinuxI2CDevice) -> Result<String> {
-        if let Err(_) = dev.write(self.command.as_bytes()) {
-            thread::sleep(Duration::from_millis(300));
-            dev.write(self.command.as_bytes())
-                .chain_err(|| "Command could not be sent")?;
-        };
-        if let Some(delay) = self.delay {
-            thread::sleep(Duration::from_millis(delay));
-        }
+    fn run(&mut self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        self.write(dev)?;
+        self.delay()?;
+        self.read_response(dev)?;
+        Ok(())
+    }
+    fn write(&mut self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        write_to_ezo(dev, self.command.as_bytes()).chain_err(|| "Error writing to EZO device.")
+    }
+    fn read_response(&mut self, dev: &mut LinuxI2CDevice) -> Result<()> {
         if let Some(_) = self.response {
-            let mut data_buffer = [0u8; MAX_RESPONSE_LENGTH];
-            if let Err(_) = dev.read(&mut data_buffer) {
-                thread::sleep(Duration::from_millis(300));
-                dev.read(&mut data_buffer)
-                    .chain_err(|| "Error reading from device")?;
-            };
-            match response_code(data_buffer[0]) {
-                ResponseCode::NoDataExpected => println!("No data expected."),
-                ResponseCode::Pending => println!("Pending"),
-                ResponseCode::DeviceError => println!("Error"),
-                ResponseCode::Success => {
-                    return Ok(String::from_utf8(parse_data_ascii_bytes(&data_buffer[1..]))
-                                  .chain_err(|| "Data is not parsable")?)
+            let data = read_raw_buffer(dev, MAX_RESPONSE_LENGTH)?;
+            self.data = Some(data);
+        };
+        Ok(())
+    }
+    fn parse_response(&self) -> Result<String> {
+        match self.data {
+            Some(ref data) => {
+                match response_code(data[0]) {
+                    ResponseCode::Success => {
+                        String::from_utf8(parse_data_ascii_bytes(&data[1..]))
+                            .chain_err(|| "Data is not parsable")
+                    }
+                    _ => Ok(String::new()),
                 }
-                ResponseCode::UnknownError => println!("NO RESPONSE"),
-            };
+            }
+            _ => Ok(String::new()),
         }
-        Ok(String::new())
     }
 
     /// Sets the ASCII string for the command to be sent
