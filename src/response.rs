@@ -1,6 +1,3 @@
-//! Parse responses from the EZO RTD Sensor
-//! =======================================
-//!
 //! Initial code graciously donated by "Federico Mena Quintero <federico@gnome.org>".
 
 use std::ffi::CStr;

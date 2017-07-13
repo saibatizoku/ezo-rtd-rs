@@ -11,16 +11,19 @@ extern crate error_chain;
 extern crate ezo_common;
 extern crate i2cdev;
 
-/// Use error-chain.
-pub mod errors;
+// Use error-chain.
+mod errors;
+
+/// Parseable responses from the EZO RTD Chip.
 pub mod response;
 
-pub use errors::*;
+use std::thread;
+use std::time::Duration;
+
+use errors::*;
 use ezo_common::{BpsRate, ResponseCode, parse_data_ascii_bytes, response_code, write_to_ezo,
                  read_raw_buffer};
 use i2cdev::linux::LinuxI2CDevice;
-use std::thread;
-use std::time::Duration;
 
 /// Maximum ascii-character response size + 2
 pub const MAX_DATA: usize = 16;
