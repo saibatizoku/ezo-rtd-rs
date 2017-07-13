@@ -28,50 +28,65 @@ pub const MAX_DATA: usize = 16;
 /// Commands for interacting with the RTD EZO chip.
 #[derive(Debug)]
 pub enum TemperatureCommand {
-    // 'Baud' command
+    /// 'Baud,n' command
     Baud(BpsRate),
-    // 'Cal' command
+    /// 'Cal,t' command
     CalibrationTemperature(f64),
+    /// 'Cal,clear' command
     CalibrationClear,
+    /// 'Cal,?' command
     CalibrationState,
-    // 'Export/Import' command
+    /// 'Export' command
     Export,
+    /// 'Export Info' command
     ExportInfo,
+    /// 'Import,n' command
     Import(String),
-    // 'D' command
+    /// 'D,n' command
     DataloggerPeriod(u16),
+    /// 'D,0' command
     DataloggerDisable,
+    /// 'D,?' command
     DataloggerInterval,
-    // 'Factory' command
+    /// 'Factory' command
     Factory,
-    // 'Find' command
+    /// 'Find' command
     Find,
-    // 'I2C' command
+    /// 'I2C,n' command
     DeviceAddress(u16),
-    // 'I' command
+    /// 'I' command
     DeviceInformation,
-    // 'L' command
+    /// 'L,1' command
     LedOn,
+    /// 'L,0' command
     LedOff,
+    /// 'L,?' command
     LedState,
-    // 'M' command
+    /// 'M,clear' command
     MemoryClear,
+    /// 'M' command
     MemoryRecall,
+    /// 'M,?' command
     MemoryRecallLastLocation,
-    // 'Plock' command
+    /// 'Plock,1' command
     ProtocolLockEnable,
+    /// 'Plock,0' command
     ProtocolLockDisable,
+    /// 'Plock,?' command
     ProtocolLockState,
-    // 'R' command
+    /// 'R' command
     Reading,
-    // 'S' command
+    /// 'S,c' command
     ScaleCelsius,
+    /// 'S,k' command
     ScaleKelvin,
+    /// 'S,f' command
     ScaleFahrenheit,
+    /// 'S,?' command
     ScaleState,
-    // 'Sleep' command
+    /// 'Sleep' command
     Sleep,
-    // 'Status' command
+    /// 'Status' command
     Status,
 }
 
