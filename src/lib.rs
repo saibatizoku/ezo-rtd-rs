@@ -21,7 +21,7 @@ use std::thread;
 use std::time::Duration;
 
 use errors::*;
-use ezo_common::{BpsRate, ResponseCode, parse_data_ascii_bytes, response_code, write_to_ezo,
+use ezo_common::{BpsRate, ResponseCode, string_from_response_data, response_code, write_to_ezo,
                  read_raw_buffer};
 use i2cdev::linux::LinuxI2CDevice;
 
@@ -353,7 +353,7 @@ impl CommandBuilder for CommandOptions {
             Some(ref data) => {
                 match response_code(data[0]) {
                     ResponseCode::Success => {
-                        String::from_utf8(parse_data_ascii_bytes(&data[1..]))
+                        string_from_response_data(&data[1..])
                             .chain_err(|| "Data is not parsable")
                     }
                     _ => Ok(String::new()),
