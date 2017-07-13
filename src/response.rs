@@ -1,6 +1,5 @@
 //! Initial code graciously donated by "Federico Mena Quintero <federico@gnome.org>".
 
-use std::ffi::CStr;
 use std::str::FromStr;
 
 use errors::*;
@@ -15,30 +14,14 @@ pub enum TemperatureScale {
 
 impl TemperatureScale {
     /// Parses the result of the "S,?" command to query temperature scale.
-    ///
-    /// Assumes that the passed response is the device's response without
-    /// the initial status byte.
-    pub fn parse(response: &[u8]) -> Result<TemperatureScale> {
-        let r = str_from_response(response)?;
-
-        match r {
+    pub fn parse(response: &str) -> Result<TemperatureScale> {
+        match response {
             "?S,c" => Ok(TemperatureScale::Celsius),
             "?S,k" => Ok(TemperatureScale::Kelvin),
             "?S,f" => Ok(TemperatureScale::Fahrenheit),
             _ => Err(ErrorKind::ResponseParse.into()),
         }
     }
-}
-
-// Takes in a slice of bytes, and validates that they are nul-terminated and valid UTF-8/ASCII
-fn str_from_response(response: &[u8]) -> Result<&str> {
-    let terminated = CStr::from_bytes_with_nul(response)
-        .chain_err(|| ErrorKind::MalformedResponse)?;
-    let r = terminated
-        .to_str()
-        .chain_err(|| ErrorKind::MalformedResponse)?;
-
-    Ok(r)
 }
 
 /// Seconds between automatic logging of readings
@@ -48,14 +31,9 @@ pub struct DataLoggerStorageIntervalSeconds(pub u32);
 impl DataLoggerStorageIntervalSeconds {
     /// Parses the result of the "D,?" command to query the data logger's
     /// storage interval.  Returns the number of seconds between readings.
-    ///
-    /// Assumes that the passed response is the device's response without
-    /// the initial status byte.
-    pub fn parse(response: &[u8]) -> Result<DataLoggerStorageIntervalSeconds> {
-        let r = str_from_response(response)?;
-
-        if r.starts_with("?D,") {
-            let num_str = r.get(3..).unwrap();
+    pub fn parse(response: &str) -> Result<DataLoggerStorageIntervalSeconds> {
+        if response.starts_with("?D,") {
+            let num_str = response.get(3..).unwrap();
             let num = u32::from_str(num_str)
                 .chain_err(|| ErrorKind::ResponseParse)?;
             Ok(DataLoggerStorageIntervalSeconds(num))
@@ -89,12 +67,8 @@ impl Temperature {
     /// Parses the result of the "D" command to get a temperature reading.
     /// Note that this depends on knowing the temperature scale
     /// which the device is configured to use.
-    ///
-    /// Assumes that the passed response is the device's response without
-    /// the initial status byte.
-    pub fn parse(response: &[u8], scale: TemperatureScale) -> Result<Temperature> {
-        let r = str_from_response(response)?;
-        let val = f64::from_str(r).chain_err(|| ErrorKind::ResponseParse)?;
+    pub fn parse(response: &str, scale: TemperatureScale) -> Result<Temperature> {
+        let val = f64::from_str(response).chain_err(|| ErrorKind::ResponseParse)?;
         Ok(Temperature::new(scale, val))
     }
 }
@@ -118,14 +92,9 @@ pub struct DeviceStatus {
 
 impl DeviceStatus {
     /// Parses the result of the "Status" command to get the device's status.
-    ///
-    /// Assumes that the passed response is the device's response without
-    /// the initial status byte.
-    pub fn parse(response: &[u8]) -> Result<DeviceStatus> {
-        let r = str_from_response(response)?;
-
-        if r.starts_with("?Status,") {
-            let rest = r.get(8..).unwrap();
+    pub fn parse(response: &str) -> Result<DeviceStatus> {
+        if response.starts_with("?Status,") {
+            let rest = response.get(8..).unwrap();
             let mut split = rest.split(',');
 
             let restart_reason = match split.next() {
@@ -164,112 +133,106 @@ mod tests {
 
     #[test]
     fn parses_temperature_scale() {
-        let response = "?S,c\0".as_bytes();
+        let response = "?S,c";
         assert_eq!(TemperatureScale::parse(&response).unwrap(),
                    TemperatureScale::Celsius);
 
-        let response = "?S,k\0".as_bytes();
+        let response = "?S,k";
         assert_eq!(TemperatureScale::parse(&response).unwrap(),
                    TemperatureScale::Kelvin);
 
-        let response = "?S,f\0".as_bytes();
+        let response = "?S,f";
         assert_eq!(TemperatureScale::parse(&response).unwrap(),
                    TemperatureScale::Fahrenheit);
     }
 
     #[test]
     fn parsing_invalid_temperature_scale_yields_error() {
-        let response = "".as_bytes();
+        let response = "";
         assert!(TemperatureScale::parse(&response).is_err());
 
-        let response = "\0".as_bytes();
-        assert!(TemperatureScale::parse(&response).is_err());
-
-        let response = "\x01".as_bytes();
-        assert!(TemperatureScale::parse(&response).is_err());
-
-        let response = "?S,\0".as_bytes();
+        let response = "?S,";
         assert!(TemperatureScale::parse(&response).is_err());
     }
 
     #[test]
     fn parses_data_logger_storage_interval() {
-        let response = "?D,1\0".as_bytes();
+        let response = "?D,1";
         assert_eq!(DataLoggerStorageIntervalSeconds::parse(response).unwrap(),
                    DataLoggerStorageIntervalSeconds(1));
 
-        let response = "?D,42\0".as_bytes();
+        let response = "?D,42";
         assert_eq!(DataLoggerStorageIntervalSeconds::parse(response).unwrap(),
                    DataLoggerStorageIntervalSeconds(42));
     }
 
     #[test]
     fn parsing_invalid_data_logger_storage_interval_yields_error() {
-        let response = "?D,\0".as_bytes();
+        let response = "?D,";
         assert!(DataLoggerStorageIntervalSeconds::parse(response).is_err());
 
-        let response = "?D,-1\0".as_bytes();
+        let response = "?D,-1";
         assert!(DataLoggerStorageIntervalSeconds::parse(response).is_err());
 
-        let response = "?D,foo\0".as_bytes();
+        let response = "?D,foo";
         assert!(DataLoggerStorageIntervalSeconds::parse(response).is_err());
     }
 
     #[test]
     fn parses_temperature() {
-        let response = "0\0".as_bytes();
+        let response = "0";
         assert_eq!(Temperature::parse(response, TemperatureScale::Celsius).unwrap(),
                    Temperature::Celsius(0.0));
 
-        let response = "1234.5\0".as_bytes();
+        let response = "1234.5";
         assert_eq!(Temperature::parse(response, TemperatureScale::Kelvin).unwrap(),
                    Temperature::Kelvin(1234.5));
 
-        let response = "-10.5\0".as_bytes();
+        let response = "-10.5";
         assert_eq!(Temperature::parse(response, TemperatureScale::Fahrenheit).unwrap(),
                    Temperature::Fahrenheit(-10.5));
     }
 
     #[test]
     fn parsing_invalid_temperature_yields_error() {
-        let response = "\0".as_bytes();
+        let response = "";
         assert!(Temperature::parse(response, TemperatureScale::Celsius).is_err());
 
-        let response = "-x\0".as_bytes();
+        let response = "-x";
         assert!(Temperature::parse(response, TemperatureScale::Celsius).is_err());
     }
 
     #[test]
     fn parses_device_status() {
-        let response = "?Status,P,1.5\0".as_bytes();
+        let response = "?Status,P,1.5";
         assert_eq!(DeviceStatus::parse(response).unwrap(),
                    DeviceStatus {
                        restart_reason: RestartReason::PoweredOff,
                        vcc_voltage: 1.5,
                    });
 
-        let response = "?Status,S,1.5\0".as_bytes();
+        let response = "?Status,S,1.5";
         assert_eq!(DeviceStatus::parse(response).unwrap(),
                    DeviceStatus {
                        restart_reason: RestartReason::SoftwareReset,
                        vcc_voltage: 1.5,
                    });
 
-        let response = "?Status,B,1.5\0".as_bytes();
+        let response = "?Status,B,1.5";
         assert_eq!(DeviceStatus::parse(response).unwrap(),
                    DeviceStatus {
                        restart_reason: RestartReason::BrownOut,
                        vcc_voltage: 1.5,
                    });
 
-        let response = "?Status,W,1.5\0".as_bytes();
+        let response = "?Status,W,1.5";
         assert_eq!(DeviceStatus::parse(response).unwrap(),
                    DeviceStatus {
                        restart_reason: RestartReason::Watchdog,
                        vcc_voltage: 1.5,
                    });
 
-        let response = "?Status,U,1.5\0".as_bytes();
+        let response = "?Status,U,1.5";
         assert_eq!(DeviceStatus::parse(response).unwrap(),
                    DeviceStatus {
                        restart_reason: RestartReason::Unknown,
@@ -279,13 +242,13 @@ mod tests {
 
     #[test]
     fn parsing_invalid_device_status_yields_error() {
-        let response = "\0".as_bytes();
+        let response = "";
         assert!(DeviceStatus::parse(response).is_err());
 
-        let response = "?Status,X,\0".as_bytes();
+        let response = "?Status,X,";
         assert!(DeviceStatus::parse(response).is_err());
 
-        let response = "?Status,P,1.5,\0".as_bytes();
+        let response = "?Status,P,1.5,";
         assert!(DeviceStatus::parse(response).is_err());
     }
 }
