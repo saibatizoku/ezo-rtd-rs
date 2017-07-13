@@ -12,7 +12,7 @@ extern crate ezo_common;
 extern crate i2cdev;
 
 // Use error-chain.
-mod errors;
+pub mod errors;
 
 /// Parseable responses from the EZO RTD Chip.
 pub mod response;
