@@ -1,6 +1,10 @@
 //! I2C Commands for RTD EZO Chip, taken from their Datasheet.
 //! This chip is used for temperature measurement. It features
 //! calibration, sleep mode, scale, etc.
+
+#![feature(str_checked_slicing)]
+
+// `error_chain!` can recurse deeply
 #![recursion_limit = "1024"]
 #[macro_use]
 extern crate error_chain;
@@ -8,14 +12,8 @@ extern crate ezo_common;
 extern crate i2cdev;
 
 /// Use error-chain.
-pub mod errors {
-    use ezo_common;
-    error_chain!{
-        links {
-            Ezo(ezo_common::errors::Error, ezo_common::errors::ErrorKind);
-        }
-    }
-}
+pub mod errors;
+pub mod response;
 
 pub use errors::*;
 use ezo_common::{BpsRate, ResponseCode, parse_data_ascii_bytes, response_code, write_to_ezo,

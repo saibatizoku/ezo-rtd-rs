@@ -3,17 +3,8 @@
 //!
 //! Initial code graciously donated by "Federico Mena Quintero <federico@gnome.org>".
 
-#![feature(str_checked_slicing)]
-
-// `error_chain!` can recurse deeply
-#![recursion_limit = "1024"]
-#[macro_use]
-extern crate error_chain;
-
 use std::ffi::CStr;
 use std::str::FromStr;
-
-mod errors;
 
 use errors::*;
 
