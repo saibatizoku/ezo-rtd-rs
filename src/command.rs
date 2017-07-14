@@ -21,7 +21,7 @@ use response::{
 };
 
 macro_rules! define_command {
-    ($name:ident, $response:ty, $command_string:tt, $delay:expr) => {
+    ($name:ident, $response:ty, $command_string:tt, $delay:expr, $run_func:expr) => {
         pub struct $name;
 
         impl Command for $name {
@@ -33,6 +33,10 @@ macro_rules! define_command {
 
             fn get_delay(&self) -> u64 {
                 $delay
+            }
+
+            fn run (&self, dev: &mut LinuxI2CDevice) -> Result<$response> {
+                $run_func
             }
         }
     };
