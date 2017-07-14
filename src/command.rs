@@ -15,6 +15,7 @@ use ezo_common::{
 use i2cdev::core::I2CDevice;
 use response::{
     DataLoggerStorageIntervalSeconds,
+    Temperature,
     TemperatureScale,
 };
 
@@ -325,15 +326,15 @@ impl Command for ProtocolLockState {
     }
 }
 
-/// `R` command.
+/// `R` command. Returns a `Temperature` response.
 pub struct Reading;
 
 impl Command for Reading {
-    type Response = ();
+    type Response = Temperature;
 
     fn get_command_string (&self) -> String { unimplemented!(); }
     fn get_delay (&self) -> u64 { unimplemented!(); }
-    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<Temperature> {
         unimplemented!();
     }
 }
