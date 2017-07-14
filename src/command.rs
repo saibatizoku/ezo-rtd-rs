@@ -3,9 +3,8 @@
 use std::thread;
 use std::time::Duration;
 
-use errors::*;
-use response::TemperatureScale;
 use {MAX_DATA, LinuxI2CDevice};
+use errors::*;
 use ezo_common::{
     BpsRate,
     ResponseCode,
@@ -14,6 +13,10 @@ use ezo_common::{
     write_to_ezo,
 };
 use i2cdev::core::I2CDevice;
+use response::{
+    DataLoggerStorageIntervalSeconds,
+    TemperatureScale,
+};
 
 pub trait Command {
     type Response;
@@ -140,15 +143,15 @@ impl Command for DataloggerDisable {
     }
 }
 
-/// `D,?` command. Returns the current datalogging interval.
+/// `D,?` command. Returns a `DataLoggerStorageIntervalSeconds` response.
 pub struct DataloggerInterval;
 
 impl Command for DataloggerInterval {
-    type Response = ();
+    type Response = DataLoggerStorageIntervalSeconds;
 
     fn get_command_string (&self) -> String { unimplemented!(); }
     fn get_delay (&self) -> u64 { unimplemented!(); }
-    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<DataLoggerStorageIntervalSeconds> {
         unimplemented!();
     }
 }
