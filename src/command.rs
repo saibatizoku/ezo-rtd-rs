@@ -379,15 +379,15 @@ impl Command for ScaleFahrenheit {
     }
 }
 
-/// `S,?` command.
+/// `S,?` command. Returns a `TemperatureScale` response.
 pub struct ScaleState;
 
 impl Command for ScaleState {
-    type Response = ();
+    type Response = TemperatureScale;
 
     fn get_command_string (&self) -> String { unimplemented!(); }
     fn get_delay (&self) -> u64 { unimplemented!(); }
-    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<TemperatureScale> {
         unimplemented!();
     }
 }
