@@ -11,6 +11,97 @@ pub trait Command {
     fn run(&self, dev: &mut LinuxI2CDevice) -> Result<Self::Response>;
 }
 
+/// `Baud,n` command, where `n` is a variant belonging to `BpsRate`.
+pub struct Baud(pub BpsRate);
+
+/// `Cal,t` command, where `t` is of type `f64`.
+pub struct CalibrationTemperature(pub f64);
+
+/// `Cal,clear` command.
+pub struct CalibrationClear;
+
+/// `Cal,?` command.
+pub struct CalibrationState;
+
+/// `Export` command.
+pub struct Export;
+
+/// `ExportInfo` command.
+pub struct ExportInfo;
+
+/// `Import,n` command, where `n` is of type `str`.
+pub struct Import(pub str);
+
+/// `D,n` command, where `n` is of type `u64`.
+pub struct DatalogSetInterval(pub u64);
+
+/// `D,0` command.
+pub struct DatalogDisable;
+
+/// `D,?` command.
+pub struct DatalogState;
+
+/// `Factory` command.
+pub struct Factory;
+
+/// `Find` command.
+pub struct Find;
+
+/// `I2C,n` command, where `n` is of type `u64`.
+pub struct SetAddress(pub u16);
+
+/// `I` command.
+pub struct DeviceInfo;
+
+/// `L,1` command.
+pub struct LedOn;
+
+/// `L,0` command.
+pub struct LedOff;
+
+/// `L,?` command.
+pub struct LedState;
+
+/// `M,clear` command.
+pub struct MemoryClear;
+
+/// `M` command.
+pub struct MemoryRecall;
+
+/// `M,?` command.
+pub struct MemoryRecallLast;
+
+/// `Plock,1` command.
+pub struct ProtocolLockEnable;
+
+/// `Plock,0` command.
+pub struct ProtocolLockDisable;
+
+/// `Plock,?` command.
+pub struct ProtocolLockState;
+
+/// `R` command.
+pub struct Reading;
+
+/// `S,c` command.
+pub struct ScaleCelsius;
+
+/// `S,k` command.
+pub struct ScaleKelvin;
+
+/// `S,f` command.
+pub struct ScaleFahrenheit;
+
+/// `S,?` command.
+pub struct ScaleState;
+
+/// `Status` command.
+pub struct Status;
+
+/// `Sleep` command.
+pub struct Sleep;
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
