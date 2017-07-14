@@ -1,7 +1,19 @@
 //! I2C commands for the RTD EZO Chip.
 //! 
-use {MAX_DATA, LinuxI2CDevice};
+use std::thread;
+use std::time::Duration;
+
 use errors::*;
+use response::TemperatureScale;
+use {MAX_DATA, LinuxI2CDevice};
+use ezo_common::{
+    BpsRate,
+    ResponseCode,
+    response_code,
+    string_from_response_data,
+    write_to_ezo,
+};
+use i2cdev::core::I2CDevice;
 
 pub trait Command {
     type Response;
