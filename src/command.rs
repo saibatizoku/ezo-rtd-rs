@@ -20,6 +20,24 @@ use response::{
     TemperatureScale,
 };
 
+macro_rules! define_command {
+    ($name:ident, $response:ty, $command_string:tt, $delay:expr) => {
+        pub struct $name;
+
+        impl Command for $name {
+            type Response = $response;
+
+            fn get_command_string(&self) -> String {
+                $command_string
+            }
+
+            fn get_delay(&self) -> u64 {
+                $delay
+            }
+        }
+    };
+}
+
 pub trait Command {
     type Response;
 
