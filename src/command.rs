@@ -428,26 +428,7 @@ impl Command for Status {
 }
 
 /// `Sleep` command.
-pub struct Sleep;
-
-impl Command for Sleep {
-    type Response = ();
-
-    fn get_command_string (&self) -> String { "Sleep".to_string() }
-
-    fn get_delay (&self) -> u64 { 0 }
-
-    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
-        let _ = write_to_ezo(dev, self.get_command_string().as_bytes())
-                    .chain_err(|| "Error writing to EZO device.")?;
-        let delay = self.get_delay ();
-        if delay > 0 {
-            thread::sleep(Duration::from_millis(delay));
-        }
-
-        Ok(())
-    }
-}
+define_command! { Sleep, (), { "Sleep".to_string() }, 0, Ok(()) }
 
 #[cfg(test)]
 mod tests {
