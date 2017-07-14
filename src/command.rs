@@ -14,93 +14,392 @@ pub trait Command {
 /// `Baud,n` command, where `n` is a variant belonging to `BpsRate`.
 pub struct Baud(pub BpsRate);
 
+impl Command for Baud {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
+
 /// `Cal,t` command, where `t` is of type `f64`.
 pub struct CalibrationTemperature(pub f64);
+
+impl Command for CalibrationTemperature {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
 
 /// `Cal,clear` command.
 pub struct CalibrationClear;
 
+impl Command for CalibrationClear {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
+
 /// `Cal,?` command.
 pub struct CalibrationState;
+
+impl Command for CalibrationState {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
 
 /// `Export` command.
 pub struct Export;
 
+impl Command for Export {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
+
 /// `ExportInfo` command.
 pub struct ExportInfo;
 
-/// `Import,n` command, where `n` is of type `str`.
-pub struct Import(pub str);
+impl Command for ExportInfo {
+    type Response = ();
 
-/// `D,n` command, where `n` is of type `u64`.
-pub struct DatalogSetInterval(pub u64);
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
+
+/// `Import,n` command, where `n` is of type `String`.
+pub struct Import(pub String);
+
+impl Command for Import {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
+
+/// `D,n` command, where `n` is of type `u16`.
+pub struct DataloggerPeriod(pub u16);
+
+impl Command for DataloggerPeriod {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
 
 /// `D,0` command.
-pub struct DatalogDisable;
+pub struct DataloggerDisable;
 
-/// `D,?` command.
-pub struct DatalogState;
+impl Command for DataloggerDisable {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
+
+/// `D,?` command. Returns the current datalogging interval.
+pub struct DataloggerInterval;
+
+impl Command for DataloggerInterval {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
 
 /// `Factory` command.
 pub struct Factory;
 
+impl Command for Factory {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
+
 /// `Find` command.
 pub struct Find;
 
+impl Command for Find {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
+
 /// `I2C,n` command, where `n` is of type `u64`.
-pub struct SetAddress(pub u16);
+pub struct DeviceAddress(pub u16);
+
+impl Command for DeviceAddress {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
 
 /// `I` command.
-pub struct DeviceInfo;
+pub struct DeviceInformation;
+
+impl Command for DeviceInformation {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
 
 /// `L,1` command.
 pub struct LedOn;
 
+impl Command for LedOn {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
+
 /// `L,0` command.
 pub struct LedOff;
+
+impl Command for LedOff {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
 
 /// `L,?` command.
 pub struct LedState;
 
+impl Command for LedState {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
+
 /// `M,clear` command.
 pub struct MemoryClear;
+
+impl Command for MemoryClear {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
 
 /// `M` command.
 pub struct MemoryRecall;
 
+impl Command for MemoryRecall {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
+
 /// `M,?` command.
 pub struct MemoryRecallLast;
+
+impl Command for MemoryRecallLast {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
 
 /// `Plock,1` command.
 pub struct ProtocolLockEnable;
 
+impl Command for ProtocolLockEnable {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
+
 /// `Plock,0` command.
 pub struct ProtocolLockDisable;
+
+impl Command for ProtocolLockDisable {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
 
 /// `Plock,?` command.
 pub struct ProtocolLockState;
 
+impl Command for ProtocolLockState {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
+
 /// `R` command.
 pub struct Reading;
+
+impl Command for Reading {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
 
 /// `S,c` command.
 pub struct ScaleCelsius;
 
+impl Command for ScaleCelsius {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
+
 /// `S,k` command.
 pub struct ScaleKelvin;
+
+impl Command for ScaleKelvin {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
 
 /// `S,f` command.
 pub struct ScaleFahrenheit;
 
+impl Command for ScaleFahrenheit {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
+
 /// `S,?` command.
 pub struct ScaleState;
+
+impl Command for ScaleState {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
 
 /// `Status` command.
 pub struct Status;
 
+impl Command for Status {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
+
 /// `Sleep` command.
 pub struct Sleep;
 
+impl Command for Sleep {
+    type Response = ();
+
+    fn get_command_string (&self) -> String { unimplemented!(); }
+    fn get_delay (&self) -> u64 { unimplemented!(); }
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+        unimplemented!();
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -291,7 +590,7 @@ mod tests {
 
     #[test]
     fn build_command_memory_recall_location() {
-        let cmd = MemoryRecallLastLocation;
+        let cmd = MemoryRecallLast;
         assert_eq!(cmd.get_command_string(), "M,?");
         assert_eq!(cmd.get_delay(), 300);
     }
