@@ -15,6 +15,7 @@ use ezo_common::{
 use i2cdev::core::I2CDevice;
 use response::{
     DataLoggerStorageIntervalSeconds,
+    DeviceStatus,
     Temperature,
     TemperatureScale,
 };
@@ -391,15 +392,15 @@ impl Command for ScaleState {
     }
 }
 
-/// `Status` command.
+/// `Status` command. Returns a `DeviceStatus` response.
 pub struct Status;
 
 impl Command for Status {
-    type Response = ();
+    type Response = DeviceStatus;
 
     fn get_command_string (&self) -> String { unimplemented!(); }
     fn get_delay (&self) -> u64 { unimplemented!(); }
-    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
+    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<DeviceStatus> {
         unimplemented!();
     }
 }
