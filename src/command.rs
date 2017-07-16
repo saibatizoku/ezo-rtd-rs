@@ -3,7 +3,6 @@
 use std::thread;
 use std::time::Duration;
 
-use {MAX_DATA, LinuxI2CDevice};
 use errors::*;
 use response::{
     DataLoggerStorageIntervalSeconds,
@@ -19,8 +18,12 @@ use ezo_common::{
     string_from_response_data,
     write_to_ezo,
 };
-use i2cdev::core::I2CDevice;
+use i2cdev::linux::LinuxI2CDevice;
 
+/// Maximum ascii-character response size + 2
+pub const MAX_DATA: usize = 16;
+
+/// I2C command for the EZO chip.
 pub trait Command {
     type Response;
 
