@@ -1,3 +1,4 @@
+//! Create the Error, ErrorKind, ResultExt, and Result types.
 use ezo_common;
 
 error_chain! {
