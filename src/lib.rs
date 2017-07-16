@@ -6,9 +6,8 @@
 
 // `error_chain!` can recurse deeply
 #![recursion_limit = "1024"]
-#[macro_use]
-extern crate error_chain;
-extern crate ezo_common;
+#[macro_use] extern crate error_chain;
+#[macro_use] extern crate ezo_common;
 extern crate i2cdev;
 
 // Use error-chain.
