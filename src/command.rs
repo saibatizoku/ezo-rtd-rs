@@ -20,10 +20,9 @@ use response::{
     TemperatureScale,
 };
 
-macro_rules! define_command {
-    ($name:ident, $response:ty, $command_string:tt, $delay:expr, $run_func:expr) => {
-        pub struct $name;
 
+macro_rules! define_command_impl {
+    ($name:ident, $response:ty, $command_string:block, $delay:expr, $run_func:expr) => {
         impl Command for $name {
             type Response = $response;
 
@@ -36,9 +35,54 @@ macro_rules! define_command {
             }
 
             fn run (&self, dev: &mut LinuxI2CDevice) -> Result<$response> {
+                let cmd = self.get_command_string();
+                let w = write_to_ezo(dev, cmd.as_bytes())
+                    .chain_err(|| "Error writing to EZO device.")?;
+                let delay = self.get_delay();
+                if delay > 0 {
+                    thread::sleep(Duration::from_millis(delay));
+                };
                 $run_func
             }
         }
+    };
+    ($cmd:ident : $name:ident, $response:ty, $command_string:block, $delay:expr, $run_func:expr) => {
+        impl Command for $name {
+            type Response = $response;
+
+            fn get_command_string(&self) -> String {
+                let $cmd = &self.0;
+                $command_string
+            }
+
+            fn get_delay(&self) -> u64 {
+                $delay
+            }
+
+            fn run (&self, dev: &mut LinuxI2CDevice) -> Result<$response> {
+                let cmd = self.get_command_string();
+                let w = write_to_ezo(dev, cmd.as_bytes())
+                    .chain_err(|| "Error writing to EZO device.")?;
+                let delay = self.get_delay();
+                if delay > 0 {
+                    thread::sleep(Duration::from_millis(delay));
+                };
+                $run_func
+            }
+        }
+    };
+}
+
+macro_rules! define_command {
+    ($name:ident, $response:ty, $command_string:block, $delay:expr, $run_func:expr) => {
+        pub struct $name;
+
+        define_command_impl!($name, $response, $command_string, $delay, $run_func);
+    };
+    ($cmd:ident : $name:ident($data:ty), $response:ty, $command_string:block, $delay:expr, $run_func:expr) => {
+        pub struct $name(pub $data);
+
+        define_command_impl!($cmd: $name, $response, $command_string, $delay, $run_func);
     };
 }
 
