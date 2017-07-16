@@ -5,6 +5,13 @@ use std::time::Duration;
 
 use {MAX_DATA, LinuxI2CDevice};
 use errors::*;
+use response::{
+    DataLoggerStorageIntervalSeconds,
+    DeviceStatus,
+    Temperature,
+    TemperatureScale,
+};
+
 use ezo_common::{
     BpsRate,
     ResponseCode,
@@ -13,12 +20,6 @@ use ezo_common::{
     write_to_ezo,
 };
 use i2cdev::core::I2CDevice;
-use response::{
-    DataLoggerStorageIntervalSeconds,
-    DeviceStatus,
-    Temperature,
-    TemperatureScale,
-};
 
 
 macro_rules! define_command_impl {
