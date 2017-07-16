@@ -96,19 +96,7 @@ pub trait Command {
 }
 
 /// `Baud,n` command, where `n` is a variant belonging to `BpsRate`.
-define_command! { cmd: Baud(BpsRate), (), {
-        let rate = match *cmd {
-            BpsRate::Bps300 => BpsRate::Bps300 as u32,
-                BpsRate::Bps1200 => BpsRate::Bps1200 as u32,
-                BpsRate::Bps2400 => BpsRate::Bps2400 as u32,
-                BpsRate::Bps9600 => BpsRate::Bps9600 as u32,
-                BpsRate::Bps19200 => BpsRate::Bps19200 as u32,
-                BpsRate::Bps38400 => BpsRate::Bps38400 as u32,
-                BpsRate::Bps57600 => BpsRate::Bps57600 as u32,
-                BpsRate::Bps115200 => BpsRate::Bps115200 as u32,
-        };
-        format!("Baud,{}", rate)
-    }, 0, unimplemented!() }
+define_command! { cmd: Baud(BpsRate), (), { format!("Baud,{}", cmd.parse() ) }, 0, unimplemented!() }
 
 /// `Cal,t` command, where `t` is of type `f64`.
 define_command! { cmd: CalibrationTemperature(f64), (), { format!("Cal,{:.*}", 2, cmd) }, 1000, unimplemented!() }
