@@ -95,13 +95,8 @@ pub trait Command {
 }
 
 /// `Baud,n` command, where `n` is a variant belonging to `BpsRate`.
-pub struct Baud(pub BpsRate);
-
-impl Command for Baud {
-    type Response = ();
-
-    fn get_command_string (&self) -> String {
-        let rate = match self.0 {
+define_command! { cmd: Baud(BpsRate), (), {
+        let rate = match *cmd {
             BpsRate::Bps300 => BpsRate::Bps300 as u32,
                 BpsRate::Bps1200 => BpsRate::Bps1200 as u32,
                 BpsRate::Bps2400 => BpsRate::Bps2400 as u32,
@@ -112,25 +107,10 @@ impl Command for Baud {
                 BpsRate::Bps115200 => BpsRate::Bps115200 as u32,
         };
         format!("Baud,{}", rate)
-    }
-    fn get_delay (&self) -> u64 { 0 }
-    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
-        unimplemented!();
-    }
-}
+    }, 0, unimplemented!() }
 
 /// `Cal,t` command, where `t` is of type `f64`.
-pub struct CalibrationTemperature(pub f64);
-
-impl Command for CalibrationTemperature {
-    type Response = ();
-
-    fn get_command_string (&self) -> String { format!("Cal,{:.*}", 2, self.0) }
-    fn get_delay (&self) -> u64 { 1000 }
-    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
-        unimplemented!();
-    }
-}
+define_command! { cmd: CalibrationTemperature(f64), (), { format!("Cal,{:.*}", 2, cmd) }, 1000, unimplemented!() }
 
 /// `Cal,clear` command.
 define_command! { CalibrationClear, (), { "Cal,clear".to_string() }, 300, unimplemented!() }
@@ -145,30 +125,10 @@ define_command! { Export, (), { "Export".to_string() }, 300, unimplemented!() }
 define_command! { ExportInfo, (), { "Export,?".to_string() }, 300, unimplemented!() }
 
 /// `Import,n` command, where `n` is of type `String`.
-pub struct Import(pub String);
-
-impl Command for Import {
-    type Response = ();
-
-    fn get_command_string (&self) -> String { format!("Import,{}", self.0) }
-    fn get_delay (&self) -> u64 { 300 }
-    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
-        unimplemented!();
-    }
-}
+define_command! { cmd: Import(String), (), { format!("Import,{}", cmd) }, 300, unimplemented!() }
 
 /// `D,n` command, where `n` is of type `u16`.
-pub struct DataloggerPeriod(pub u16);
-
-impl Command for DataloggerPeriod {
-    type Response = ();
-
-    fn get_command_string (&self) -> String { format!("D,{}", self.0) }
-    fn get_delay (&self) -> u64 { 300 }
-    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
-        unimplemented!();
-    }
-}
+define_command! { cmd: DataloggerPeriod(u16), (), { format!("D,{}", cmd) }, 300, unimplemented!() }
 
 /// `D,0` command.
 define_command! { DataloggerDisable, (), { "D,0".to_string() }, 300, unimplemented!() }
@@ -183,17 +143,7 @@ define_command! { Factory, (), { "Factory".to_string() }, 0, unimplemented!() }
 define_command! { Find, (), { "F".to_string() }, 300, unimplemented!() }
 
 /// `I2C,n` command, where `n` is of type `u64`.
-pub struct DeviceAddress(pub u16);
-
-impl Command for DeviceAddress {
-    type Response = ();
-
-    fn get_command_string (&self) -> String { format!("I2C,{}", self.0) }
-    fn get_delay (&self) -> u64 { 300 }
-    fn run (&self, dev: &mut LinuxI2CDevice) -> Result<()> {
-        unimplemented!();
-    }
-}
+define_command! { cmd: DeviceAddress(u16), (), { format!("I2C,{}", cmd) }, 300, unimplemented!() }
 
 /// `I` command.
 define_command! { DeviceInformation, (), { "I".to_string() }, 300, unimplemented!() }
