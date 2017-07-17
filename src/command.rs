@@ -32,95 +32,138 @@ pub trait Command {
     fn run(&self, dev: &mut LinuxI2CDevice) -> Result<Self::Response>;
 }
 
-/// `Baud,n` command, where `n` is a variant belonging to `BpsRate`.
-define_command! { cmd: Baud(BpsRate), { format!("Baud,{}", cmd.parse() ) }, 0 }
+define_command! {
+    doc: "`Baud,n` command, where `n` is a variant belonging to `BpsRate`.",
+    cmd: Baud(BpsRate),
+    { format!("Baud,{}", cmd.parse() ) },
+    0
+}
 
-/// `Cal,t` command, where `t` is of type `f64`.
-define_command! { cmd: CalibrationTemperature(f64), { format!("Cal,{:.*}", 2, cmd) }, 1000 }
+define_command! {
+    doc: "`Cal,t` command, where `t` is of type `f64`.",
+    cmd: CalibrationTemperature(f64),
+    { format!("Cal,{:.*}", 2, cmd) },
+    1000
+}
 
-/// `Cal,clear` command.
-define_command! { CalibrationClear, { "Cal,clear".to_string() }, 300 }
+define_command! {
+    doc: "`Cal,clear` command.",
+    CalibrationClear,
+    { "Cal,clear".to_string() },
+    300
+}
 
-/// `Cal,?` command.
-define_command! { CalibrationState, { "Cal,?".to_string() }, 300 }
+define_command! {
+    doc: "`Cal,?` command.",
+    CalibrationState,
+    { "Cal,?".to_string() },
+    300
+}
 
-/// `Export` command.
-define_command! { Export, { "Export".to_string() }, 300 }
+define_command! {
+    doc: "`Export` command.",
+    Export, { "Export".to_string() }, 300 }
 
-/// `ExportInfo` command.
-define_command! { ExportInfo, { "Export,?".to_string() }, 300 }
+define_command! {
+    doc: "`ExportInfo` command.",
+    ExportInfo, { "Export,?".to_string() }, 300 }
 
-/// `Import,n` command, where `n` is of type `String`.
-define_command! { cmd: Import(String), { format!("Import,{}", cmd) }, 300 }
+define_command! {
+    doc: "`Import,n` command, where `n` is of type `String`.",
+    cmd: Import(String), { format!("Import,{}", cmd) }, 300 }
 
-/// `D,n` command, where `n` is of type `u16`.
-define_command! { cmd: DataloggerPeriod(u16), { format!("D,{}", cmd) }, 300 }
+define_command! {
+    doc: "`D,n` command, where `n` is of type `u16`.",
+    cmd: DataloggerPeriod(u16), { format!("D,{}", cmd) }, 300 }
 
-/// `D,0` command.
-define_command! { DataloggerDisable, { "D,0".to_string() }, 300 }
+define_command! {
+    doc: "`D,0` command.",
+    DataloggerDisable, { "D,0".to_string() }, 300 }
 
-/// `D,?` command. Returns a `DataLoggerStorageIntervalSeconds` response.
-define_command! { DataloggerInterval, { "D,?".to_string() }, 300 }
+define_command! {
+    doc: "`D,?` command. Returns a `DataLoggerStorageIntervalSeconds` response.",
+    DataloggerInterval, { "D,?".to_string() }, 300 }
 
-/// `Factory` command.
-define_command! { Factory, { "Factory".to_string() }, 0 }
+define_command! {
+    doc: "`Factory` command.",
+    Factory, { "Factory".to_string() }, 0 }
 
-/// `Find` command.
-define_command! { Find, { "F".to_string() }, 300 }
+define_command! {
+    doc: "`Find` command.",
+    Find, { "F".to_string() }, 300 }
 
-/// `I2C,n` command, where `n` is of type `u64`.
-define_command! { cmd: DeviceAddress(u16), { format!("I2C,{}", cmd) }, 300 }
+define_command! {
+    doc: "`I2C,n` command, where `n` is of type `u64`.",
+    cmd: DeviceAddress(u16), { format!("I2C,{}", cmd) }, 300 }
 
-/// `I` command.
-define_command! { DeviceInformation, { "I".to_string() }, 300 }
+define_command! {
+    doc: "`I` command.",
+    DeviceInformation, { "I".to_string() }, 300 }
 
-/// `L,1` command.
-define_command! { LedOn, { "L,1".to_string() }, 300 }
+define_command! {
+    doc: "`L,1` command.",
+    LedOn, { "L,1".to_string() }, 300 }
 
-/// `L,0` command.
-define_command! { LedOff, { "L,0".to_string() }, 300 }
+define_command! {
+    doc: "`L,0` command.",
+    LedOff, { "L,0".to_string() }, 300 }
 
-/// `L,?` command.
-define_command! { LedState, { "L,?".to_string() }, 300 }
+define_command! {
+    doc: "`L,?` command.",
+    LedState, { "L,?".to_string() }, 300 }
 
-/// `M,clear` command.
-define_command! { MemoryClear, { "M,clear".to_string() }, 300 }
+define_command! {
+    doc: "`M,clear` command.",
+    MemoryClear, { "M,clear".to_string() }, 300 }
 
-/// `M` command.
-define_command! { MemoryRecall, { "M".to_string() }, 300 }
+define_command! {
+    doc: "`M` command.",
+    MemoryRecall, { "M".to_string() }, 300 }
 
-/// `M,?` command.
-define_command! { MemoryRecallLast, { "M,?".to_string() }, 300 }
+define_command! {
+    doc: "`M,?` command.",
+    MemoryRecallLast, { "M,?".to_string() }, 300 }
 
-/// `Plock,1` command.
-define_command! { ProtocolLockEnable, { "Plock,1".to_string() }, 300 }
+define_command! {
+    doc: "`Plock,1` command.",
+    ProtocolLockEnable, { "Plock,1".to_string() }, 300 }
 
-/// `Plock,0` command.
-define_command! { ProtocolLockDisable, { "Plock,0".to_string() }, 300 }
+define_command! {
+    doc: "`Plock,0` command.",
+    ProtocolLockDisable, { "Plock,0".to_string() }, 300 }
 
-/// `Plock,?` command.
-define_command! { ProtocolLockState, { "Plock,?".to_string() }, 300 }
+define_command! {
+    doc: "`Plock,?` command.",
+    ProtocolLockState, { "Plock,?".to_string() }, 300 }
 
-/// `R` command. Returns a `Temperature` response.
-define_command! { Reading, { "R".to_string() }, 600 }
+define_command! {
+    doc: "`R` command. Returns a `Temperature` response.",
+    Reading, { "R".to_string() }, 600 }
 
-/// `S,c` command.
-define_command! { ScaleCelsius, { "S,c".to_string() }, 300 }
+define_command! {
+    doc: "`S,c` command.",
+    ScaleCelsius, { "S,c".to_string() }, 300 }
 
-/// `S,k` command.
-define_command! { ScaleKelvin, { "S,k".to_string() }, 300 }
+define_command! {
+    doc: "`S,k` command.",
+    ScaleKelvin, { "S,k".to_string() }, 300 }
 
-/// `S,f` command.
-define_command! { ScaleFahrenheit, { "S,f".to_string() }, 300 }
+define_command! {
+    doc: "`S,f` command.",
+    ScaleFahrenheit, { "S,f".to_string() }, 300 }
 
-/// `S,?` command. Returns a `TemperatureScale` response.
-define_command! { ScaleState, { "S,?".to_string() }, 300 }
 
-/// `Status` command. Returns a `DeviceStatus` response.
-define_command! { Status, { "Status".to_string() }, 300 }
+define_command! { 
+    doc: "`S,?` command. Returns a `TemperatureScale` response.",
+    ScaleState, { "S,?".to_string() }, 300 }
 
-/// `Sleep` command.
-define_command! { Sleep, { "Sleep".to_string() } }
+define_command! { 
+    doc: "`Status` command. Returns a `DeviceStatus` response.",
+    Status, { "Status".to_string() }, 300 }
+
+define_command! {
+    doc: "`Sleep` command.",
+    Sleep, { "Sleep".to_string() } }
 
 #[cfg(test)]
 mod tests {
