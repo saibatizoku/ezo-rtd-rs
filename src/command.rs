@@ -34,136 +34,153 @@ pub trait Command {
 
 define_command! {
     doc: "`Baud,n` command, where `n` is a variant belonging to `BpsRate`.",
-    cmd: Baud(BpsRate),
-    { format!("Baud,{}", cmd.parse() ) },
-    0
+    cmd: Baud(BpsRate), { format!("Baud,{}", cmd.parse() ) }, 0
 }
 
 define_command! {
     doc: "`Cal,t` command, where `t` is of type `f64`.",
-    cmd: CalibrationTemperature(f64),
-    { format!("Cal,{:.*}", 2, cmd) },
-    1000
+    cmd: CalibrationTemperature(f64), { format!("Cal,{:.*}", 2, cmd) }, 1000
 }
 
 define_command! {
     doc: "`Cal,clear` command.",
-    CalibrationClear,
-    { "Cal,clear".to_string() },
-    300
+    CalibrationClear, { "Cal,clear".to_string() }, 300
 }
 
 define_command! {
     doc: "`Cal,?` command.",
-    CalibrationState,
-    { "Cal,?".to_string() },
-    300
+    CalibrationState, { "Cal,?".to_string() }, 300
 }
 
 define_command! {
     doc: "`Export` command.",
-    Export, { "Export".to_string() }, 300 }
+    Export, { "Export".to_string() }, 300
+}
 
 define_command! {
     doc: "`ExportInfo` command.",
-    ExportInfo, { "Export,?".to_string() }, 300 }
+    ExportInfo, { "Export,?".to_string() }, 300
+}
 
 define_command! {
     doc: "`Import,n` command, where `n` is of type `String`.",
-    cmd: Import(String), { format!("Import,{}", cmd) }, 300 }
+    cmd: Import(String), { format!("Import,{}", cmd) }, 300
+}
 
 define_command! {
     doc: "`D,n` command, where `n` is of type `u16`.",
-    cmd: DataloggerPeriod(u16), { format!("D,{}", cmd) }, 300 }
+    cmd: DataloggerPeriod(u16), { format!("D,{}", cmd) }, 300
+}
 
 define_command! {
     doc: "`D,0` command.",
-    DataloggerDisable, { "D,0".to_string() }, 300 }
+    DataloggerDisable, { "D,0".to_string() }, 300
+}
 
 define_command! {
     doc: "`D,?` command. Returns a `DataLoggerStorageIntervalSeconds` response.",
-    DataloggerInterval, { "D,?".to_string() }, 300 }
+    DataloggerInterval, { "D,?".to_string() }, 300
+}
 
 define_command! {
     doc: "`Factory` command.",
-    Factory, { "Factory".to_string() }, 0 }
+    Factory, { "Factory".to_string() }, 0
+}
 
 define_command! {
     doc: "`Find` command.",
-    Find, { "F".to_string() }, 300 }
+    Find, { "F".to_string() }, 300
+}
 
 define_command! {
     doc: "`I2C,n` command, where `n` is of type `u64`.",
-    cmd: DeviceAddress(u16), { format!("I2C,{}", cmd) }, 300 }
+    cmd: DeviceAddress(u16), { format!("I2C,{}", cmd) }, 300
+}
 
 define_command! {
     doc: "`I` command.",
-    DeviceInformation, { "I".to_string() }, 300 }
+    DeviceInformation, { "I".to_string() }, 300
+}
 
 define_command! {
     doc: "`L,1` command.",
-    LedOn, { "L,1".to_string() }, 300 }
+    LedOn, { "L,1".to_string() }, 300
+}
 
 define_command! {
     doc: "`L,0` command.",
-    LedOff, { "L,0".to_string() }, 300 }
+    LedOff, { "L,0".to_string() }, 300
+}
 
 define_command! {
     doc: "`L,?` command.",
-    LedState, { "L,?".to_string() }, 300 }
+    LedState, { "L,?".to_string() }, 300
+}
 
 define_command! {
     doc: "`M,clear` command.",
-    MemoryClear, { "M,clear".to_string() }, 300 }
+    MemoryClear, { "M,clear".to_string() }, 300
+}
 
 define_command! {
     doc: "`M` command.",
-    MemoryRecall, { "M".to_string() }, 300 }
+    MemoryRecall, { "M".to_string() }, 300
+}
 
 define_command! {
     doc: "`M,?` command.",
-    MemoryRecallLast, { "M,?".to_string() }, 300 }
+    MemoryRecallLast, { "M,?".to_string() }, 300
+}
 
 define_command! {
     doc: "`Plock,1` command.",
-    ProtocolLockEnable, { "Plock,1".to_string() }, 300 }
+    ProtocolLockEnable, { "Plock,1".to_string() }, 300
+}
 
 define_command! {
     doc: "`Plock,0` command.",
-    ProtocolLockDisable, { "Plock,0".to_string() }, 300 }
+    ProtocolLockDisable, { "Plock,0".to_string() }, 300
+}
 
 define_command! {
     doc: "`Plock,?` command.",
-    ProtocolLockState, { "Plock,?".to_string() }, 300 }
+    ProtocolLockState, { "Plock,?".to_string() }, 300
+}
 
 define_command! {
     doc: "`R` command. Returns a `Temperature` response.",
-    Reading, { "R".to_string() }, 600 }
+    Reading, { "R".to_string() }, 600
+}
 
 define_command! {
     doc: "`S,c` command.",
-    ScaleCelsius, { "S,c".to_string() }, 300 }
+    ScaleCelsius, { "S,c".to_string() }, 300
+}
 
 define_command! {
     doc: "`S,k` command.",
-    ScaleKelvin, { "S,k".to_string() }, 300 }
+    ScaleKelvin, { "S,k".to_string() }, 300
+}
 
 define_command! {
     doc: "`S,f` command.",
-    ScaleFahrenheit, { "S,f".to_string() }, 300 }
-
+    ScaleFahrenheit, { "S,f".to_string() }, 300
+}
 
 define_command! { 
     doc: "`S,?` command. Returns a `TemperatureScale` response.",
-    ScaleState, { "S,?".to_string() }, 300 }
+    ScaleState, { "S,?".to_string() }, 300
+}
 
 define_command! { 
     doc: "`Status` command. Returns a `DeviceStatus` response.",
-    Status, { "Status".to_string() }, 300 }
+    Status, { "Status".to_string() }, 300
+}
 
 define_command! {
     doc: "`Sleep` command.",
-    Sleep, { "Sleep".to_string() } }
+    Sleep, { "Sleep".to_string() }
+}
 
 #[cfg(test)]
 mod tests {
