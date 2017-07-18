@@ -4,7 +4,33 @@ use std::str::FromStr;
 
 use errors::*;
 
-/// Temperature scales supported by the EZO RTD sensor.
+/// Calibration status of the RTD EZO chip.
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum CalibrationStatus {
+    Calibrated,
+    NotCalibrated,
+}
+
+impl CalibrationStatus {
+    /// Parses the result of the "Cal,?" command to query the device's
+    /// calibration status.  Returns ...
+    pub fn parse(response: &str) -> Result<CalibrationStatus> {
+        if response.starts_with("?Cal,") {
+            let rest = response.get(5..).unwrap();
+            let mut split = rest.split(',');
+
+            match split.next() {
+                Some("1") => Ok(CalibrationStatus::Calibrated),
+                Some("0") => Ok(CalibrationStatus::NotCalibrated),
+                _ => return Err(ErrorKind::ResponseParse.into()),
+            }
+        } else {
+            Err(ErrorKind::ResponseParse.into())
+        }
+    }
+}
+
+/// Temperature scales supported by the RTD EZO sensor.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum TemperatureScale {
     Celsius,
@@ -130,6 +156,17 @@ impl DeviceStatus {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn parses_calibration_status() {
+        let response = "?Cal,1";
+        assert_eq!(CalibrationStatus::parse(&response).unwrap(),
+                   CalibrationStatus::Calibrated);
+
+        let response = "?Cal,0";
+        assert_eq!(CalibrationStatus::parse(&response).unwrap(),
+                   CalibrationStatus::NotCalibrated);
+    }
 
     #[test]
     fn parses_temperature_scale() {
