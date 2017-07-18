@@ -30,6 +30,30 @@ impl CalibrationStatus {
     }
 }
 
+/// Status of I2C protocol lock.
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum ProtocolLockStatus {
+    Off,
+    On,
+}
+
+impl ProtocolLockStatus {
+    pub fn parse(response: &str) -> Result<ProtocolLockStatus> {
+        if response.starts_with("?Plock,") {
+            let rest = response.get(7..).unwrap();
+            let mut split = rest.split(',');
+
+            match split.next() {
+                Some("1") => Ok(ProtocolLockStatus::On),
+                Some("0") => Ok(ProtocolLockStatus::Off),
+                _ => return Err(ErrorKind::ResponseParse.into()),
+            }
+        } else {
+            Err(ErrorKind::ResponseParse.into())
+        }
+    }
+}
+
 /// Temperature scales supported by the RTD EZO sensor.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum TemperatureScale {
@@ -317,4 +341,16 @@ mod tests {
         let response = "?Status,P,1.5,";
         assert!(DeviceStatus::parse(response).is_err());
     }
+
+    #[test]
+    fn parses_protocol_lock_status() {
+        let response = "?Plock,1";
+        assert_eq!(ProtocolLockStatus::parse(&response).unwrap(),
+                   ProtocolLockStatus::On);
+
+        let response = "?Plock,0";
+        assert_eq!(ProtocolLockStatus::parse(&response).unwrap(),
+                   ProtocolLockStatus::Off);
+    }
+
 }
