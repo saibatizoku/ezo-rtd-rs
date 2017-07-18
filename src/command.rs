@@ -5,8 +5,11 @@ use std::time::Duration;
 
 use errors::*;
 use response::{
+    CalibrationStatus,
     DataLoggerStorageIntervalSeconds,
     DeviceStatus,
+    Exported,
+    SensorReading,
     Temperature,
     TemperatureScale,
 };
@@ -18,6 +21,7 @@ use ezo_common::{
     string_from_response_data,
     write_to_ezo,
 };
+use i2cdev::core::I2CDevice;
 use i2cdev::linux::LinuxI2CDevice;
 
 /// Maximum ascii-character response size + 2
@@ -48,8 +52,9 @@ define_command! {
 }
 
 define_command! {
-    doc: "`Cal,?` command.",
-    CalibrationState, { "Cal,?".to_string() }, 300
+    doc: "`Cal,?` command. Returns a `CalibrationStatus` response.",
+    CalibrationState, { "Cal,?".to_string() }, 300,
+    resp: CalibrationStatus, { CalibrationStatus::parse(&resp) }
 }
 
 define_command! {
@@ -79,7 +84,8 @@ define_command! {
 
 define_command! {
     doc: "`D,?` command. Returns a `DataLoggerStorageIntervalSeconds` response.",
-    DataloggerInterval, { "D,?".to_string() }, 300
+    DataloggerInterval, { "D,?".to_string() }, 300,
+    resp: DataLoggerStorageIntervalSeconds, { DataLoggerStorageIntervalSeconds::parse(&resp) }
 }
 
 define_command! {
@@ -149,7 +155,8 @@ define_command! {
 
 define_command! {
     doc: "`R` command. Returns a `Temperature` response.",
-    Reading, { "R".to_string() }, 600
+    Reading, { "R".to_string() }, 600,
+    resp: SensorReading, { SensorReading::parse(&resp) }
 }
 
 define_command! {
@@ -179,7 +186,7 @@ define_command! {
 
 define_command! {
     doc: "`Sleep` command.",
-    Sleep, { "Sleep".to_string() }
+    Sleep, { "Sleep".to_string() }, 0
 }
 
 #[cfg(test)]
