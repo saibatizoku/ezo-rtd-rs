@@ -99,6 +99,20 @@ impl Temperature {
     }
 }
 
+/// A temperature reading
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct SensorReading(pub f64);
+
+impl SensorReading {
+    /// Parses the result of the "T" command to get a temperature reading.
+    /// Note that the returned value has no known units. It is your
+    /// responsibility to know the current `TemperatureScale` setting.
+    pub fn parse(response: &str) -> Result<SensorReading> {
+        let val = f64::from_str(response).chain_err(|| ErrorKind::ResponseParse)?;
+        Ok(SensorReading(val))
+    }
+}
+
 /// Reason for which the device restarted, data sheet pp. 58
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum RestartReason {
@@ -213,6 +227,21 @@ mod tests {
 
         let response = "?D,foo";
         assert!(DataLoggerStorageIntervalSeconds::parse(response).is_err());
+    }
+
+    #[test]
+    fn parses_sensor_reading() {
+        let response = "0";
+        assert_eq!(SensorReading::parse(response).unwrap(),
+                   SensorReading(0.0));
+
+        let response = "1234.5";
+        assert_eq!(SensorReading::parse(response).unwrap(),
+                   SensorReading(1234.5));
+
+        let response = "-10.5";
+        assert_eq!(SensorReading::parse(response).unwrap(),
+                   SensorReading(-10.5));
     }
 
     #[test]
