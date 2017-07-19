@@ -10,8 +10,8 @@ use std::time::Duration;
 
 use chrono::{DateTime, Utc};
 use ezo_rtd::errors::*;
-use ezo_rtd::command::{Command, Reading, ScaleState, Sleep};
-use ezo_rtd::response::{SensorReading, TemperatureScale};
+use ezo_rtd::command::{Command, ReadingWithScale, ScaleKelvin, Sleep};
+use ezo_rtd::response::{Temperature};
 use i2cdev::linux::LinuxI2CDevice;
 
 const I2C_BUS_ID: u8 = 1;
@@ -23,32 +23,31 @@ fn run() -> Result<()> {
     let mut dev = LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR)
         .chain_err(|| "Could not open I2C device")?;
 
-    let scale: TemperatureScale = ScaleState.run(&mut dev)?;
+    let _set_kelvin: () = ScaleKelvin.run(&mut dev)?;
 
     loop {
-        let SensorReading(temperature) = Reading.run(&mut dev)?;
+
+        let temperature = ReadingWithScale.run(&mut dev)?;
+
+        let _out = _print_response(temperature)?;
 
         let _ = match Sleep.run(&mut dev) {
             Err(_) => (),
             _ => (),
         };
 
-        let _ = _print_response(temperature, 2, &scale);
-
         // Ideally, every 10 seconds, fine-tune this to your hardware.
         thread::sleep(Duration::new(9, 293798000));
     }
 }
 
-fn _print_response(temp: f64, decimals: usize, units: &TemperatureScale) -> Result<()> {
-        let dt: DateTime<Utc> = Utc::now();
-        println!("{:?},{:.*},{:?}",
-                 dt,
-                 decimals,
-                 temp,
-                 units,
-                );
-        Ok(())
+fn _print_response(temp: Temperature) -> Result<()> {
+    let dt: DateTime<Utc> = Utc::now();
+    println!("{:?},{:?}",
+             dt,
+             temp,
+             );
+    Ok(())
 }
 
 fn main() {

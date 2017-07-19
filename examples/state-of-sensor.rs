@@ -32,7 +32,6 @@ use ezo_rtd::response::{
     Exported,
     ExportedInfo,
     LedStatus,
-    Temperature,
 };
 use i2cdev::linux::LinuxI2CDevice;
 
@@ -102,7 +101,7 @@ fn run() -> Result<()> {
                     println!("The response is plainly weird. It should not exist.");
                 }
             };
-        },
+        }
     };
 
     let _ = match Sleep.run(&mut dev) {
