@@ -32,6 +32,7 @@ use ezo_rtd::response::{
     Exported,
     ExportedInfo,
     LedStatus,
+    Temperature,
 };
 use i2cdev::linux::LinuxI2CDevice;
 
@@ -81,7 +82,29 @@ fn run() -> Result<()> {
     let _celsius = ScaleCelsius.run(&mut dev)?;
     println!("Scale set to CELSIUS");
 
-    let temperature = ReadingWithScale.run(&mut dev)?;
+    let temperature: Option<Temperature> = match ReadingWithScale.run(&mut dev) {
+        Ok(temp) => Some(temp),
+        Err(e) => {
+            match e {
+                Error(ErrorKind::PendingResponse, _) => {
+                    println!("Response is pending. Try again with a longer delay time.");
+                }
+                Error(ErrorKind::DeviceErrorResponse, _) => {
+                    println!("The device responded with ERR.");
+                }
+                Error(ErrorKind::NoDataExpectedResponse, _) => {
+                    println!("The device responded that it has no data to send.");
+                }
+                Error(ErrorKind::MalformedResponse, _) => {
+                    println!("The device response is unknown.");
+                }
+                _ => {
+                    println!("The response is plainly weird. It should not exist.");
+                }
+            };
+            None
+        },
+    };
     println!("{:?}", temperature);
 
     let _ = match Sleep.run(&mut dev) {
