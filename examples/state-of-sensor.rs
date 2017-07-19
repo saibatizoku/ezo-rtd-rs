@@ -1,6 +1,10 @@
-#![recursion_limit = "1024"]
 //! An example that retrieves the current settings of the RTD EZO chip.
 //!
+
+#![recursion_limit = "1024"]
+
+#![feature(inclusive_range_syntax)]
+
 extern crate ezo_rtd;
 extern crate i2cdev;
 
@@ -11,6 +15,7 @@ use ezo_rtd::command::{
     CalibrationState,
     DataloggerInterval,
     LedState,
+    Export,
     ExportInfo,
     Sleep,
 };
@@ -19,6 +24,7 @@ use ezo_rtd::response::{
     CalibrationStatus,
     DataLoggerStorageIntervalSeconds,
     LedStatus,
+    Exported,
     ExportedInfo,
 };
 use i2cdev::linux::LinuxI2CDevice;
@@ -43,8 +49,13 @@ fn run() -> Result<()> {
     let led_status: LedStatus = LedState.run(&mut dev)?;
     println!("LedState: {:#?}", led_status);
 
-    let exports: ExportedInfo = ExportInfo.run(&mut dev)?;
-    println!("ExportInfo: {:#?}", exports);
+    let ExportedInfo { lines, total_bytes } = ExportInfo.run(&mut dev)?;
+    println!("ExportInfo: #lines {:#?}, #bytes {:#?}", lines, total_bytes);
+
+    for _ in 0...lines {
+        let exports: Exported = Export.run(&mut dev)?;
+        println!("Exported: {:#?}", exports);
+    }
 
     let _ = match Sleep.run(&mut dev) {
         Err(_) => println!("Sleeping...."),
