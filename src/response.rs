@@ -207,27 +207,15 @@ mod tests {
     }
 
     #[test]
-    fn parses_temperature_scale() {
-        let response = "?S,c";
-        assert_eq!(TemperatureScale::parse(&response).unwrap(),
-                   TemperatureScale::Celsius);
-
-        let response = "?S,k";
-        assert_eq!(TemperatureScale::parse(&response).unwrap(),
-                   TemperatureScale::Kelvin);
-
-        let response = "?S,f";
-        assert_eq!(TemperatureScale::parse(&response).unwrap(),
-                   TemperatureScale::Fahrenheit);
-    }
-
-    #[test]
-    fn parsing_invalid_temperature_scale_yields_error() {
+    fn parsing_invalid_calibration_status_yields_error() {
         let response = "";
-        assert!(TemperatureScale::parse(&response).is_err());
+        assert!(CalibrationStatus::parse(&response).is_err());
 
-        let response = "?S,";
-        assert!(TemperatureScale::parse(&response).is_err());
+        let response = "?Cal,";
+        assert!(CalibrationStatus::parse(&response).is_err());
+
+        let response = "?Cal,b";
+        assert!(CalibrationStatus::parse(&response).is_err());
     }
 
     #[test]
@@ -254,6 +242,62 @@ mod tests {
     }
 
     #[test]
+    fn parses_data_export_string() {
+        let response = "?Export,123456789012";
+        assert_eq!(Exported::parse(response).unwrap(),
+                   Exported::ExportString("123456789012".to_string()));
+
+        let response = "?Export,myresponse";
+        assert_eq!(Exported::parse(response).unwrap(),
+                   Exported::ExportString("myresponse".to_string()));
+
+        let response = "?Export,*DONE";
+        assert_eq!(Exported::parse(response).unwrap(),
+                   Exported::Done);
+    }
+
+    #[test]
+    fn parsing_invalid_export_string_yields_error() {
+        let response = "?Export,*DNE";
+        assert!(Exported::parse(response).is_err());
+
+        let response = "?Export,*DON";
+        assert!(Exported::parse(response).is_err());
+
+        let response = "?Export,**DONE";
+        assert!(Exported::parse(response).is_err());
+
+        let response = "?Export,";
+        assert!(Exported::parse(response).is_err());
+
+        let response = "?Export,12345678901234567890";
+        assert!(Exported::parse(response).is_err());
+    }
+
+    #[test]
+    fn parses_protocol_lock_status() {
+        let response = "?Plock,1";
+        assert_eq!(ProtocolLockStatus::parse(&response).unwrap(),
+                   ProtocolLockStatus::On);
+
+        let response = "?Plock,0";
+        assert_eq!(ProtocolLockStatus::parse(&response).unwrap(),
+                   ProtocolLockStatus::Off);
+    }
+
+    #[test]
+    fn parsing_invalid_protocol_lock_status_yields_error() {
+        let response = "";
+        assert!(ProtocolLockStatus::parse(&response).is_err());
+
+        let response = "?Plock,57";
+        assert!(ProtocolLockStatus::parse(&response).is_err());
+
+        let response = "?Plock,b";
+        assert!(ProtocolLockStatus::parse(&response).is_err());
+    }
+
+    #[test]
     fn parses_sensor_reading() {
         let response = "0";
         assert_eq!(SensorReading::parse(response).unwrap(),
@@ -269,7 +313,40 @@ mod tests {
     }
 
     #[test]
-    fn parses_temperature() {
+    fn parsing_invalid_sensor_reading_yields_error() {
+        let response = "";
+        assert!(SensorReading::parse(response).is_err());
+
+        let response = "-x";
+        assert!(SensorReading::parse(response).is_err());
+    }
+
+    #[test]
+    fn parses_temperature_scale() {
+        let response = "?S,c";
+        assert_eq!(TemperatureScale::parse(&response).unwrap(),
+                   TemperatureScale::Celsius);
+
+        let response = "?S,k";
+        assert_eq!(TemperatureScale::parse(&response).unwrap(),
+                   TemperatureScale::Kelvin);
+
+        let response = "?S,f";
+        assert_eq!(TemperatureScale::parse(&response).unwrap(),
+                   TemperatureScale::Fahrenheit);
+    }
+
+    #[test]
+    fn parsing_invalid_temperature_scale_yields_error() {
+        let response = "";
+        assert!(TemperatureScale::parse(&response).is_err());
+
+        let response = "?S,";
+        assert!(TemperatureScale::parse(&response).is_err());
+    }
+
+    #[test]
+    fn parses_temperature_with_scale() {
         let response = "0";
         assert_eq!(Temperature::parse(response, TemperatureScale::Celsius).unwrap(),
                    Temperature::Celsius(0.0));
@@ -341,16 +418,4 @@ mod tests {
         let response = "?Status,P,1.5,";
         assert!(DeviceStatus::parse(response).is_err());
     }
-
-    #[test]
-    fn parses_protocol_lock_status() {
-        let response = "?Plock,1";
-        assert_eq!(ProtocolLockStatus::parse(&response).unwrap(),
-                   ProtocolLockStatus::On);
-
-        let response = "?Plock,0";
-        assert_eq!(ProtocolLockStatus::parse(&response).unwrap(),
-                   ProtocolLockStatus::Off);
-    }
-
 }
