@@ -386,47 +386,47 @@ mod tests {
 
     #[test]
     fn parses_data_export_string() {
-        let response = "?EXPORT,123456789012";
+        let response = "123456789012";
         assert_eq!(Exported::parse(response).unwrap(),
                    Exported::ExportString("123456789012".to_string()));
 
-        let response = "?EXPORT,myresponse";
+        let response = "myresponse";
         assert_eq!(Exported::parse(response).unwrap(),
                    Exported::ExportString("myresponse".to_string()));
 
-        let response = "?EXPORT,*DONE";
+        let response = "*DONE";
         assert_eq!(Exported::parse(response).unwrap(),
                    Exported::Done);
     }
 
     #[test]
     fn parsing_invalid_export_string_yields_error() {
-        let response = "?EXPORT,*DNE";
+        let response = "*DNE";
         assert!(Exported::parse(response).is_err());
 
-        let response = "?EXPORT,*DON";
+        let response = "*DON";
         assert!(Exported::parse(response).is_err());
 
-        let response = "?EXPORT,**DONE";
+        let response = "**DONE";
         assert!(Exported::parse(response).is_err());
 
-        let response = "?EXPORT,";
+        let response = "";
         assert!(Exported::parse(response).is_err());
 
-        let response = "?EXPORT,12345678901234567890";
+        let response = "12345678901234567890";
         assert!(Exported::parse(response).is_err());
     }
 
     #[test]
     fn parses_export_info() {
-        let response = "0,0";
+        let response = "?EXPORT,0,0";
         assert_eq!(ExportedInfo::parse(response).unwrap(),
                    ExportedInfo { lines: 0, total_bytes: 0 } );
     }
 
     #[test]
     fn parsing_invalid_export_info_yields_error() {
-        let response = "?10,12";
+        let response = "?EXPORT,1012";
         assert!(ExportedInfo::parse(response).is_err());
 
         let response = "10,*DON";
