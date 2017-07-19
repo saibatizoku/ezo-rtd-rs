@@ -10,7 +10,8 @@ use std::time::Duration;
 
 use chrono::{DateTime, Utc};
 use ezo_rtd::errors::*;
-use ezo_rtd::command::{Command, Reading, Sleep};
+use ezo_rtd::command::{Command, Reading, ScaleState, Sleep};
+use ezo_rtd::response::{SensorReading, TemperatureScale};
 use i2cdev::linux::LinuxI2CDevice;
 
 const I2C_BUS_ID: u8 = 1;
@@ -21,19 +22,20 @@ fn run() -> Result<()> {
     let mut dev = LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR)
         .chain_err(|| "Could not open I2C device")?;
     loop {
-        let _ = Reading.run(&mut dev)?;
+        let scale: TemperatureScale = ScaleState.run(&mut dev)?;
+        let SensorReading(temperature) = Reading.run(&mut dev)?;
         let _ = Sleep.run(&mut dev)?;
-        // let _ = _print_response(cmd.parse(), 2, "°C");
+        let _ = _print_response(temperature, 2, scale);
         thread::sleep(Duration::from_millis(9400));
     }
 }
 
-fn _print_response(response: &str, decimals: usize, units: &str) -> Result<()> {
+fn _print_response(temp: f64, decimals: usize, units: TemperatureScale) -> Result<()> {
         let dt: DateTime<Utc> = Utc::now();
-        println!("{:?},{:.*},{}",
+        println!("{:?},{:.*},{:?}",
                  dt,
                  decimals,
-                 response.parse::<f64>().chain_err(|| "unparsable temperature")?,
+                 temp,
                  units,
                 );
         Ok(())
