@@ -171,6 +171,48 @@ define_command! {
     resp: SensorReading, { SensorReading::parse(&resp) }
 }
 
+/// Obtains a temperature with the current scales.
+///
+/// It first calls ScaleState::run(..), then returns  Reading::run(..)
+pub struct ReadingWithScale;
+
+impl Command for ReadingWithScale {
+    type Response = Temperature;
+
+    fn get_command_string(&self) -> String {
+        Reading.get_command_string()
+    }
+
+    fn get_delay(&self) -> u64 {
+        // symbolic representation of the time it takes to execute both
+        // underlying commands.
+        900
+    }
+
+    fn run(&self, dev: &mut LinuxI2CDevice) -> Result<Temperature> {
+        let scale = ScaleState.run(dev)?;
+
+        let mut data_buffer = [0u8; MAX_DATA];
+
+        let _r = dev.read(&mut data_buffer)
+            .chain_err(|| ErrorKind::I2CRead)?;
+
+        let resp_string = match response_code(data_buffer[0]) {
+            ResponseCode::Success => {
+                match data_buffer.iter().position(|&c| c == 0) {
+                    Some(len) => {
+                        string_from_response_data(&data_buffer[1...len])
+                            .chain_err(|| ErrorKind::MalformedResponse)
+                    }
+                    _ => return Err(ErrorKind::MalformedResponse.into()),
+                }
+            }
+            _ => return Err(ErrorKind::UnsuccessfulResponse.into()),
+        };
+        Temperature::parse(&resp_string?, scale)
+    }
+}
+
 define_command! {
     doc: "`S,c` command.",
     ScaleCelsius, { "S,c\0".to_string() }, 300
@@ -423,6 +465,13 @@ mod tests {
         let cmd = Reading;
         assert_eq!(cmd.get_command_string(), "R\0");
         assert_eq!(cmd.get_delay(), 600);
+    }
+
+    #[test]
+    fn build_command_reading_with_scale() {
+        let cmd = ReadingWithScale;
+        assert_eq!(cmd.get_command_string(), "R\0");
+        assert_eq!(cmd.get_delay(), 900);
     }
 
     #[test]
