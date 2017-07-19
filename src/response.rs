@@ -275,6 +275,28 @@ mod tests {
     }
 
     #[test]
+    fn parses_export_info() {
+        let response = "10,123";
+        assert_eq!(ExportedInfo::parse(response).unwrap(),
+                   ExportedInfo { lines: 10, total_bytes: 123 } );
+    }
+
+    #[test]
+    fn parsing_invalid_export_info_yields_error() {
+        let response = "?10,12";
+        assert!(ExportedInfo::parse(response).is_err());
+
+        let response = "10,*DON";
+        assert!(ExportedInfo::parse(response).is_err());
+
+        let response = "12,";
+        assert!(ExportedInfo::parse(response).is_err());
+
+        let response = "";
+        assert!(ExportedInfo::parse(response).is_err());
+    }
+
+    #[test]
     fn parses_protocol_lock_status() {
         let response = "?Plock,1";
         assert_eq!(ProtocolLockStatus::parse(&response).unwrap(),
