@@ -7,11 +7,16 @@ use errors::*;
 use response::{
     CalibrationStatus,
     DataLoggerStorageIntervalSeconds,
-    DeviceStatus,
     Exported,
+    ExportedInfo,
+    DeviceInfo,
+    LedStatus,
+    MemoryReading,
+    ProtocolLockStatus,
     SensorReading,
     Temperature,
     TemperatureScale,
+    DeviceStatus,
 };
 
 use ezo_common::{
@@ -59,12 +64,14 @@ define_command! {
 
 define_command! {
     doc: "`Export` command.",
-    Export, { "Export".to_string() }, 300
+    Export, { "Export".to_string() }, 300,
+    resp: Exported, { Exported::parse(&resp) }
 }
 
 define_command! {
     doc: "`ExportInfo` command.",
-    ExportInfo, { "Export,?".to_string() }, 300
+    ExportInfo, { "Export,?".to_string() }, 300,
+    resp: ExportedInfo, { ExportedInfo::parse(&resp) }
 }
 
 define_command! {
@@ -105,7 +112,8 @@ define_command! {
 
 define_command! {
     doc: "`I` command.",
-    DeviceInformation, { "I".to_string() }, 300
+    DeviceInformation, { "I".to_string() }, 300,
+    resp: DeviceInfo, { DeviceInfo::parse(&resp) }
 }
 
 define_command! {
@@ -120,7 +128,8 @@ define_command! {
 
 define_command! {
     doc: "`L,?` command.",
-    LedState, { "L,?".to_string() }, 300
+    LedState, { "L,?".to_string() }, 300,
+    resp: LedStatus, { LedStatus::parse(&resp) }
 }
 
 define_command! {
@@ -129,13 +138,15 @@ define_command! {
 }
 
 define_command! {
-    doc: "`M` command.",
-    MemoryRecall, { "M".to_string() }, 300
+    doc: "`M` command. Returns a `MemoryReading` response.",
+    MemoryRecall, { "M".to_string() }, 300,
+    resp: MemoryReading, { MemoryReading::parse(&resp) }
 }
 
 define_command! {
-    doc: "`M,?` command.",
-    MemoryRecallLast, { "M,?".to_string() }, 300
+    doc: "`M,?` command. Returns a `MemoryReading` response.",
+    MemoryRecallLast, { "M,?".to_string() }, 300,
+    resp: MemoryReading, { MemoryReading::parse(&resp) }
 }
 
 define_command! {
@@ -149,12 +160,13 @@ define_command! {
 }
 
 define_command! {
-    doc: "`Plock,?` command.",
-    ProtocolLockState, { "Plock,?".to_string() }, 300
+    doc: "`Plock,?` command. Returns a `ProtocolLockStatus` response.",
+    ProtocolLockState, { "Plock,?".to_string() }, 300,
+    resp: ProtocolLockStatus, { ProtocolLockStatus::parse(&resp) }
 }
 
 define_command! {
-    doc: "`R` command. Returns a `Temperature` response.",
+    doc: "`R` command. Returns a `SensorReading` response.",
     Reading, { "R".to_string() }, 600,
     resp: SensorReading, { SensorReading::parse(&resp) }
 }
@@ -176,12 +188,14 @@ define_command! {
 
 define_command! { 
     doc: "`S,?` command. Returns a `TemperatureScale` response.",
-    ScaleState, { "S,?".to_string() }, 300
+    ScaleState, { "S,?".to_string() }, 300,
+    resp: TemperatureScale, { TemperatureScale::parse(&resp) }
 }
 
 define_command! { 
     doc: "`Status` command. Returns a `DeviceStatus` response.",
-    Status, { "Status".to_string() }, 300
+    Status, { "Status".to_string() }, 300,
+    resp: DeviceStatus, { DeviceStatus::parse(&resp) }
 }
 
 define_command! {
