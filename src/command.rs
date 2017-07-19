@@ -198,6 +198,7 @@ impl Command for ReadingWithScale {
             .chain_err(|| ErrorKind::I2CRead)?;
 
         let resp_string = match response_code(data_buffer[0]) {
+
             ResponseCode::Success => {
                 match data_buffer.iter().position(|&c| c == 0) {
                     Some(len) => {
@@ -207,7 +208,14 @@ impl Command for ReadingWithScale {
                     _ => return Err(ErrorKind::MalformedResponse.into()),
                 }
             }
-            _ => return Err(ErrorKind::UnsuccessfulResponse.into()),
+
+            ResponseCode::Pending => return Err(ErrorKind::PendingResponse.into()),
+
+            ResponseCode::DeviceError => return Err(ErrorKind::DeviceErrorResponse.into()),
+
+            ResponseCode::NoDataExpected => return Err(ErrorKind::NoDataExpectedResponse.into()),
+
+            ResponseCode::UnknownError => return Err(ErrorKind::MalformedResponse.into()),
         };
         Temperature::parse(&resp_string?, scale)
     }
