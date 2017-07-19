@@ -15,7 +15,7 @@ impl CalibrationStatus {
     /// Parses the result of the "Cal,?" command to query the device's
     /// calibration status.  Returns ...
     pub fn parse(response: &str) -> Result<CalibrationStatus> {
-        if response.starts_with("?Cal,") {
+        if response.starts_with("?CAL,") {
             let rest = response.get(5..).unwrap();
             let mut split = rest.split(',');
 
@@ -58,7 +58,7 @@ pub enum Exported {
 
 impl Exported {
     pub fn parse(response: &str) -> Result<Exported> {
-        if response.starts_with("?Export,") {
+        if response.starts_with("?EXPORT,") {
             let num_str = response.get(8..).unwrap();
             if num_str.starts_with("*") {
                 match num_str {
@@ -115,7 +115,7 @@ pub struct DeviceInfo {
 
 impl DeviceInfo {
     pub fn parse(response: &str) -> Result<DeviceInfo> {
-        if response.starts_with("?i,") {
+        if response.starts_with("?I,") {
             let rest = response.get(3..).unwrap();
             let mut split = rest.split(',');
 
@@ -200,7 +200,7 @@ pub enum ProtocolLockStatus {
 
 impl ProtocolLockStatus {
     pub fn parse(response: &str) -> Result<ProtocolLockStatus> {
-        if response.starts_with("?Plock,") {
+        if response.starts_with("?PLOCK,") {
             let rest = response.get(7..).unwrap();
             let mut split = rest.split(',');
 
@@ -227,9 +227,9 @@ impl TemperatureScale {
     /// Parses the result of the "S,?" command to query temperature scale.
     pub fn parse(response: &str) -> Result<TemperatureScale> {
         match response {
-            "?S,c" => Ok(TemperatureScale::Celsius),
-            "?S,k" => Ok(TemperatureScale::Kelvin),
-            "?S,f" => Ok(TemperatureScale::Fahrenheit),
+            "?S,C" => Ok(TemperatureScale::Celsius),
+            "?S,K" => Ok(TemperatureScale::Kelvin),
+            "?S,F" => Ok(TemperatureScale::Fahrenheit),
             _ => Err(ErrorKind::ResponseParse.into()),
         }
     }
@@ -299,7 +299,7 @@ pub struct DeviceStatus {
 impl DeviceStatus {
     /// Parses the result of the "Status" command to get the device's status.
     pub fn parse(response: &str) -> Result<DeviceStatus> {
-        if response.starts_with("?Status,") {
+        if response.starts_with("?STATUS,") {
             let rest = response.get(8..).unwrap();
             let mut split = rest.split(',');
 
@@ -339,11 +339,11 @@ mod tests {
 
     #[test]
     fn parses_calibration_status() {
-        let response = "?Cal,1";
+        let response = "?CAL,1";
         assert_eq!(CalibrationStatus::parse(&response).unwrap(),
                    CalibrationStatus::Calibrated);
 
-        let response = "?Cal,0";
+        let response = "?CAL,0";
         assert_eq!(CalibrationStatus::parse(&response).unwrap(),
                    CalibrationStatus::NotCalibrated);
     }
@@ -353,10 +353,10 @@ mod tests {
         let response = "";
         assert!(CalibrationStatus::parse(&response).is_err());
 
-        let response = "?Cal,";
+        let response = "?CAL,";
         assert!(CalibrationStatus::parse(&response).is_err());
 
-        let response = "?Cal,b";
+        let response = "?CAL,b";
         assert!(CalibrationStatus::parse(&response).is_err());
     }
 
@@ -385,34 +385,34 @@ mod tests {
 
     #[test]
     fn parses_data_export_string() {
-        let response = "?Export,123456789012";
+        let response = "?EXPORT,123456789012";
         assert_eq!(Exported::parse(response).unwrap(),
                    Exported::ExportString("123456789012".to_string()));
 
-        let response = "?Export,myresponse";
+        let response = "?EXPORT,myresponse";
         assert_eq!(Exported::parse(response).unwrap(),
                    Exported::ExportString("myresponse".to_string()));
 
-        let response = "?Export,*DONE";
+        let response = "?EXPORT,*DONE";
         assert_eq!(Exported::parse(response).unwrap(),
                    Exported::Done);
     }
 
     #[test]
     fn parsing_invalid_export_string_yields_error() {
-        let response = "?Export,*DNE";
+        let response = "?EXPORT,*DNE";
         assert!(Exported::parse(response).is_err());
 
-        let response = "?Export,*DON";
+        let response = "?EXPORT,*DON";
         assert!(Exported::parse(response).is_err());
 
-        let response = "?Export,**DONE";
+        let response = "?EXPORT,**DONE";
         assert!(Exported::parse(response).is_err());
 
-        let response = "?Export,";
+        let response = "?EXPORT,";
         assert!(Exported::parse(response).is_err());
 
-        let response = "?Export,12345678901234567890";
+        let response = "?EXPORT,12345678901234567890";
         assert!(Exported::parse(response).is_err());
     }
 
@@ -440,14 +440,14 @@ mod tests {
 
     #[test]
     fn parses_device_information() {
-        let response = "?i,RTD,2.01";
+        let response = "?I,RTD,2.01";
         assert_eq!(DeviceInfo::parse(response).unwrap(),
                    DeviceInfo {
                        device: "RTD".to_string(),
                        firmware: "2.01".to_string(),
                    } );
 
-        let response = "?i,,";
+        let response = "?I,,";
         assert_eq!(DeviceInfo::parse(response).unwrap(),
                    DeviceInfo {
                        device: "".to_string(),
@@ -458,10 +458,10 @@ mod tests {
 
     #[test]
     fn parsing_invalid_device_info_yields_error() {
-        let response = "?i";
+        let response = "?I";
         assert!(DeviceInfo::parse(response).is_err());
 
-        let response = "?i,";
+        let response = "?I,";
         assert!(DeviceInfo::parse(response).is_err());
 
         let response = "";
@@ -523,11 +523,11 @@ mod tests {
 
     #[test]
     fn parses_protocol_lock_status() {
-        let response = "?Plock,1";
+        let response = "?PLOCK,1";
         assert_eq!(ProtocolLockStatus::parse(&response).unwrap(),
                    ProtocolLockStatus::On);
 
-        let response = "?Plock,0";
+        let response = "?PLOCK,0";
         assert_eq!(ProtocolLockStatus::parse(&response).unwrap(),
                    ProtocolLockStatus::Off);
     }
@@ -537,10 +537,10 @@ mod tests {
         let response = "";
         assert!(ProtocolLockStatus::parse(&response).is_err());
 
-        let response = "?Plock,57";
+        let response = "?PLOCK,57";
         assert!(ProtocolLockStatus::parse(&response).is_err());
 
-        let response = "?Plock,b";
+        let response = "?PLOCK,b";
         assert!(ProtocolLockStatus::parse(&response).is_err());
     }
 
@@ -570,15 +570,15 @@ mod tests {
 
     #[test]
     fn parses_temperature_scale() {
-        let response = "?S,c";
+        let response = "?S,C";
         assert_eq!(TemperatureScale::parse(&response).unwrap(),
                    TemperatureScale::Celsius);
 
-        let response = "?S,k";
+        let response = "?S,K";
         assert_eq!(TemperatureScale::parse(&response).unwrap(),
                    TemperatureScale::Kelvin);
 
-        let response = "?S,f";
+        let response = "?S,F";
         assert_eq!(TemperatureScale::parse(&response).unwrap(),
                    TemperatureScale::Fahrenheit);
     }
@@ -618,35 +618,35 @@ mod tests {
 
     #[test]
     fn parses_device_status() {
-        let response = "?Status,P,1.5";
+        let response = "?STATUS,P,1.5";
         assert_eq!(DeviceStatus::parse(response).unwrap(),
                    DeviceStatus {
                        restart_reason: RestartReason::PoweredOff,
                        vcc_voltage: 1.5,
                    });
 
-        let response = "?Status,S,1.5";
+        let response = "?STATUS,S,1.5";
         assert_eq!(DeviceStatus::parse(response).unwrap(),
                    DeviceStatus {
                        restart_reason: RestartReason::SoftwareReset,
                        vcc_voltage: 1.5,
                    });
 
-        let response = "?Status,B,1.5";
+        let response = "?STATUS,B,1.5";
         assert_eq!(DeviceStatus::parse(response).unwrap(),
                    DeviceStatus {
                        restart_reason: RestartReason::BrownOut,
                        vcc_voltage: 1.5,
                    });
 
-        let response = "?Status,W,1.5";
+        let response = "?STATUS,W,1.5";
         assert_eq!(DeviceStatus::parse(response).unwrap(),
                    DeviceStatus {
                        restart_reason: RestartReason::Watchdog,
                        vcc_voltage: 1.5,
                    });
 
-        let response = "?Status,U,1.5";
+        let response = "?STATUS,U,1.5";
         assert_eq!(DeviceStatus::parse(response).unwrap(),
                    DeviceStatus {
                        restart_reason: RestartReason::Unknown,
@@ -659,7 +659,7 @@ mod tests {
         let response = "";
         assert!(DeviceStatus::parse(response).is_err());
 
-        let response = "?Status,X,";
+        let response = "?STATUS,X,";
         assert!(DeviceStatus::parse(response).is_err());
 
         let response = "?Status,P,1.5,";
