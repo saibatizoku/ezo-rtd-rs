@@ -359,6 +359,9 @@ mod tests {
 
         let response = "?CAL,b";
         assert!(CalibrationStatus::parse(&response).is_err());
+
+        let response = "?CAL,1,";
+        assert!(CalibrationStatus::parse(&response).is_err());
     }
 
     #[test]
@@ -401,16 +404,13 @@ mod tests {
 
     #[test]
     fn parsing_invalid_export_string_yields_error() {
-        let response = "*DNE";
+        let response = "*";
         assert!(Exported::parse(response).is_err());
 
-        let response = "*DON";
+        let response = "*DONE*";
         assert!(Exported::parse(response).is_err());
 
         let response = "**DONE";
-        assert!(Exported::parse(response).is_err());
-
-        let response = "";
         assert!(Exported::parse(response).is_err());
 
         let response = "12345678901234567890";
@@ -426,6 +426,9 @@ mod tests {
 
     #[test]
     fn parsing_invalid_export_info_yields_error() {
+        let response = "?EXPORT,11,120,10";
+        assert!(ExportedInfo::parse(response).is_err());
+
         let response = "?EXPORT,1012";
         assert!(ExportedInfo::parse(response).is_err());
 
@@ -459,13 +462,16 @@ mod tests {
 
     #[test]
     fn parsing_invalid_device_info_yields_error() {
+        let response = "";
+        assert!(DeviceInfo::parse(response).is_err());
+
         let response = "?I";
         assert!(DeviceInfo::parse(response).is_err());
 
         let response = "?I,";
         assert!(DeviceInfo::parse(response).is_err());
 
-        let response = "";
+        let response = "?I,a,b,c";
         assert!(DeviceInfo::parse(response).is_err());
     }
 
@@ -520,6 +526,9 @@ mod tests {
 
         let response = "-1,-1";
         assert!(MemoryReading::parse(response).is_err());
+
+        let response = "1,1,1";
+        assert!(MemoryReading::parse(response).is_err());
     }
 
     #[test]
@@ -542,6 +551,9 @@ mod tests {
         assert!(ProtocolLockStatus::parse(&response).is_err());
 
         let response = "?PLOCK,b";
+        assert!(ProtocolLockStatus::parse(&response).is_err());
+
+        let response = "?PLOCK,b,1";
         assert!(ProtocolLockStatus::parse(&response).is_err());
     }
 
