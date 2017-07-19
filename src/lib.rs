@@ -6,6 +6,8 @@
 
 #![feature(exclusive_range_pattern)]
 
+#![feature(inclusive_range_syntax)]
+
 // `error_chain!` can recurse deeply
 #![recursion_limit = "1024"]
 #[macro_use] extern crate error_chain;
