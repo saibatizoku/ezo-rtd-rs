@@ -30,6 +30,25 @@ impl CalibrationStatus {
     }
 }
 
+/// Seconds between automatic logging of readings
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct DataLoggerStorageIntervalSeconds(pub u32);
+
+impl DataLoggerStorageIntervalSeconds {
+    /// Parses the result of the "D,?" command to query the data logger's
+    /// storage interval.  Returns the number of seconds between readings.
+    pub fn parse(response: &str) -> Result<DataLoggerStorageIntervalSeconds> {
+        if response.starts_with("?D,") {
+            let num_str = response.get(3..).unwrap();
+            let num = u32::from_str(num_str)
+                .chain_err(|| ErrorKind::ResponseParse)?;
+            Ok(DataLoggerStorageIntervalSeconds(num))
+        } else {
+            Err(ErrorKind::ResponseParse.into())
+        }
+    }
+}
+
 /// Status of I2C protocol lock.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ProtocolLockStatus {
@@ -70,25 +89,6 @@ impl TemperatureScale {
             "?S,k" => Ok(TemperatureScale::Kelvin),
             "?S,f" => Ok(TemperatureScale::Fahrenheit),
             _ => Err(ErrorKind::ResponseParse.into()),
-        }
-    }
-}
-
-/// Seconds between automatic logging of readings
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub struct DataLoggerStorageIntervalSeconds(pub u32);
-
-impl DataLoggerStorageIntervalSeconds {
-    /// Parses the result of the "D,?" command to query the data logger's
-    /// storage interval.  Returns the number of seconds between readings.
-    pub fn parse(response: &str) -> Result<DataLoggerStorageIntervalSeconds> {
-        if response.starts_with("?D,") {
-            let num_str = response.get(3..).unwrap();
-            let num = u32::from_str(num_str)
-                .chain_err(|| ErrorKind::ResponseParse)?;
-            Ok(DataLoggerStorageIntervalSeconds(num))
-        } else {
-            Err(ErrorKind::ResponseParse.into())
         }
     }
 }
