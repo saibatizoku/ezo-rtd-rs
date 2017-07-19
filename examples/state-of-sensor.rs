@@ -82,8 +82,8 @@ fn run() -> Result<()> {
     let _celsius = ScaleCelsius.run(&mut dev)?;
     println!("Scale set to CELSIUS");
 
-    let temperature: Option<Temperature> = match ReadingWithScale.run(&mut dev) {
-        Ok(temp) => Some(temp),
+    let _ = match ReadingWithScale.run(&mut dev) {
+        Ok(temperature) => println!("{:?}", temperature),
         Err(e) => {
             match e {
                 Error(ErrorKind::PendingResponse, _) => {
@@ -102,10 +102,8 @@ fn run() -> Result<()> {
                     println!("The response is plainly weird. It should not exist.");
                 }
             };
-            None
         },
     };
-    println!("{:?}", temperature);
 
     let _ = match Sleep.run(&mut dev) {
         Err(_) => println!("Sleeping...."),
