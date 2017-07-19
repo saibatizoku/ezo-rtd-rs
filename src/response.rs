@@ -297,6 +297,35 @@ mod tests {
     }
 
     #[test]
+    fn parses_device_information() {
+        let response = "?i,RTD,2.01";
+        assert_eq!(DeviceInfo::parse(response).unwrap(),
+                   DeviceInfo {
+                       device: "RTD".to_string(),
+                       firmware: "2.01".to_string(),
+                   } );
+
+        let response = "?i,,";
+        assert_eq!(DeviceInfo::parse(response).unwrap(),
+                   DeviceInfo {
+                       device: "".to_string(),
+                       firmware: "".to_string(),
+                   } );
+
+    }
+
+    #[test]
+    fn parsing_invalid_device_info_yields_error() {
+        let response = "?i";
+        assert!(DeviceInfo::parse(response).is_err());
+
+        let response = "?i,";
+        assert!(DeviceInfo::parse(response).is_err());
+
+        let response = "";
+        assert!(DeviceInfo::parse(response).is_err());
+    }
+    #[test]
     fn parses_protocol_lock_status() {
         let response = "?Plock,1";
         assert_eq!(ProtocolLockStatus::parse(&response).unwrap(),
