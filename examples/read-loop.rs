@@ -35,7 +35,8 @@ fn run() -> Result<()> {
 
         let _ = _print_response(temperature, 2, &scale);
 
-        thread::sleep(Duration::from_millis(9095));
+        // Ideally, every 10 seconds, fine-tune this to your hardware.
+        thread::sleep(Duration::new(9, 293798000));
     }
 }
 
