@@ -56,14 +56,14 @@ fn run() -> Result<()> {
     println!("{:?}", datalog_period);
 
     let led_status: LedStatus = LedState.run(&mut dev)?;
-    println!("LedState: {:#?}", led_status);
+    println!("LedState: {:?}", led_status);
 
     let ExportedInfo { lines, total_bytes } = ExportInfo.run(&mut dev)?;
-    println!("ExportInfo: #lines {:#?}, #bytes {:#?}", lines, total_bytes);
+    println!("ExportInfo: #lines {}, #bytes {}", lines, total_bytes);
 
     for _ in 0...lines {
         let exports: Exported = Export.run(&mut dev)?;
-        println!("Exported: {:#?}", exports);
+        println!("Exported: {:?}", exports);
     }
 
     let _kelvin = ScaleKelvin.run(&mut dev)?;
