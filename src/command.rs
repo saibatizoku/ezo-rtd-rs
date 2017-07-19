@@ -190,7 +190,15 @@ impl Command for ReadingWithScale {
     }
 
     fn run(&self, dev: &mut LinuxI2CDevice) -> Result<Temperature> {
+
         let scale = ScaleState.run(dev)?;
+
+        let cmd = Reading.get_command_string();
+
+        let _w = write_to_ezo(dev, cmd.as_bytes())
+            .chain_err(|| "Error writing to EZO device.")?;
+
+        let _wait = thread::sleep(Duration::from_millis(Reading.get_delay()));
 
         let mut data_buffer = [0u8; MAX_DATA];
 
@@ -217,6 +225,7 @@ impl Command for ReadingWithScale {
 
             ResponseCode::UnknownError => return Err(ErrorKind::MalformedResponse.into()),
         };
+
         Temperature::parse(&resp_string?, scale)
     }
 }
