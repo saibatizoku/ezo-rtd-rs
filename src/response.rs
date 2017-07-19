@@ -49,6 +49,148 @@ impl DataLoggerStorageIntervalSeconds {
     }
 }
 
+/// Exported calibration string of the RTD EZO chip.
+#[derive(Debug, Clone, PartialEq)]
+pub enum Exported {
+    ExportString(String),
+    Done,
+}
+
+impl Exported {
+    pub fn parse(response: &str) -> Result<Exported> {
+        if response.starts_with("?Export,") {
+            let num_str = response.get(8..).unwrap();
+            if num_str.starts_with("*") {
+                match num_str {
+                    "*DONE" => Ok(Exported::Done),
+                    _ => Err(ErrorKind::ResponseParse.into()),
+                }
+            } else {
+                match num_str.len() {
+                    1..13 => Ok(Exported::ExportString(num_str.to_string())),
+                    _ => Err(ErrorKind::ResponseParse.into()),
+                }
+            }
+        } else {
+            Err(ErrorKind::ResponseParse.into())
+        }
+    }
+}
+
+/// Export the current calibration settings of the RTD EZO chip.
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ExportedInfo {
+    pub lines: u16,
+    pub total_bytes: u16,
+}
+
+impl ExportedInfo {
+    pub fn parse(response: &str) -> Result<ExportedInfo> {
+        let mut split = response.split(",");
+
+        let lines = if let Some(lines_str) = split.next() {
+            u16::from_str(lines_str)
+                .chain_err(|| ErrorKind::ResponseParse)?
+        } else {
+            return Err(ErrorKind::ResponseParse.into());
+        };
+
+        let total_bytes = if let Some(totalbytes_str) = split.next() {
+            u16::from_str(totalbytes_str)
+                .chain_err(|| ErrorKind::ResponseParse)?
+        } else {
+            return Err(ErrorKind::ResponseParse.into());
+        };
+
+        Ok (ExportedInfo { lines, total_bytes } )
+    }
+}
+
+/// Current firmware settings of the RTD EZO chip.
+#[derive(Debug, Clone, PartialEq)]
+pub struct DeviceInfo {
+    pub device: String,
+    pub firmware: String,
+}
+
+impl DeviceInfo {
+    pub fn parse(response: &str) -> Result<DeviceInfo> {
+        if response.starts_with("?i,") {
+            let rest = response.get(3..).unwrap();
+            let mut split = rest.split(',');
+
+            let device = if let Some(device_str) = split.next() {
+                device_str.to_string()
+            } else {
+                return Err(ErrorKind::ResponseParse.into());
+            };
+
+            let firmware = if let Some(firmware_str) = split.next() {
+                firmware_str.to_string()
+            } else {
+                return Err(ErrorKind::ResponseParse.into());
+            };
+
+            Ok (DeviceInfo { device, firmware } )
+
+        } else {
+            Err(ErrorKind::ResponseParse.into())
+        }
+    }
+}
+
+/// Status of RTD EZO's LED.
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum LedStatus {
+    Off,
+    On,
+}
+
+impl LedStatus {
+    pub fn parse(response: &str) -> Result<LedStatus> {
+        if response.starts_with("?L,") {
+            let rest = response.get(3..).unwrap();
+
+            match rest {
+                "1" => Ok(LedStatus::On),
+                "0" => Ok(LedStatus::Off),
+                _ => return Err(ErrorKind::ResponseParse.into()),
+            }
+        } else {
+            Err(ErrorKind::ResponseParse.into())
+        }
+    }
+}
+
+/// A recalled temperature reading from memory.
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct MemoryReading {
+    pub location: u32,
+    pub reading: f64,
+}
+
+impl MemoryReading {
+    pub fn parse(response: &str) -> Result<MemoryReading> {
+        let mut split = response.split(",");
+
+        let location: u32 = if let Some(location_str) = split.next() {
+            u32::from_str(location_str)
+                .chain_err(|| ErrorKind::ResponseParse)?
+        } else {
+            return Err(ErrorKind::ResponseParse.into());
+        };
+
+        let reading: f64 = if let Some(reading_str) = split.next() {
+            f64::from_str(reading_str)
+                .chain_err(|| ErrorKind::ResponseParse)?
+        } else {
+            return Err(ErrorKind::ResponseParse.into());
+        };
+
+        Ok (MemoryReading { location, reading })
+    }
+}
+
 /// Status of I2C protocol lock.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ProtocolLockStatus {
@@ -276,9 +418,9 @@ mod tests {
 
     #[test]
     fn parses_export_info() {
-        let response = "10,123";
+        let response = "0,0";
         assert_eq!(ExportedInfo::parse(response).unwrap(),
-                   ExportedInfo { lines: 10, total_bytes: 123 } );
+                   ExportedInfo { lines: 0, total_bytes: 0 } );
     }
 
     #[test]
