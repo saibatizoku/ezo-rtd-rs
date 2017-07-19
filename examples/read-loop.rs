@@ -19,18 +19,21 @@ const EZO_SENSOR_ADDR: u16 = 101; // could be specified as 0x65
 
 fn run() -> Result<()> {
     let device_path = format!("/dev/i2c-{}", I2C_BUS_ID);
+
     let mut dev = LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR)
         .chain_err(|| "Could not open I2C device")?;
+
+    let scale: TemperatureScale = ScaleState.run(&mut dev)?;
+
     loop {
-        let scale: TemperatureScale = ScaleState.run(&mut dev)?;
         let SensorReading(temperature) = Reading.run(&mut dev)?;
         let _ = Sleep.run(&mut dev)?;
-        let _ = _print_response(temperature, 2, scale);
-        thread::sleep(Duration::from_millis(9400));
+        let _ = _print_response(temperature, 2, &scale);
+        thread::sleep(Duration::from_millis(9095));
     }
 }
 
-fn _print_response(temp: f64, decimals: usize, units: TemperatureScale) -> Result<()> {
+fn _print_response(temp: f64, decimals: usize, units: &TemperatureScale) -> Result<()> {
         let dt: DateTime<Utc> = Utc::now();
         println!("{:?},{:.*},{:?}",
                  dt,
