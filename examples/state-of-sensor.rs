@@ -46,7 +46,10 @@ fn run() -> Result<()> {
     let exports: ExportedInfo = ExportInfo.run(&mut dev)?;
     println!("ExportInfo: {:#?}", exports);
 
-    let _ = Sleep.run(&mut dev)?;
+    let _ = match Sleep.run(&mut dev) {
+        Err(_) => println!("Sleeping...."),
+        _ => (),
+    };
 
     Ok(())
 }

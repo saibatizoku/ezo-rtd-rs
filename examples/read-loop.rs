@@ -27,8 +27,14 @@ fn run() -> Result<()> {
 
     loop {
         let SensorReading(temperature) = Reading.run(&mut dev)?;
-        let _ = Sleep.run(&mut dev)?;
+
+        let _ = match Sleep.run(&mut dev) {
+            Err(_) => (),
+            _ => (),
+        };
+
         let _ = _print_response(temperature, 2, &scale);
+
         thread::sleep(Duration::from_millis(9095));
     }
 }
