@@ -19,10 +19,15 @@ impl CalibrationStatus {
             let rest = response.get(5..).unwrap();
             let mut split = rest.split(',');
 
-            match split.next() {
+            let _calibration = match split.next() {
                 Some("1") => Ok(CalibrationStatus::Calibrated),
                 Some("0") => Ok(CalibrationStatus::NotCalibrated),
                 _ => return Err(ErrorKind::ResponseParse.into()),
+            };
+
+            match split.next() {
+                None => _calibration,
+                _ => Err(ErrorKind::ResponseParse.into()),
             }
         } else {
             Err(ErrorKind::ResponseParse.into())
@@ -100,6 +105,10 @@ impl ExportedInfo {
                 return Err(ErrorKind::ResponseParse.into());
             };
 
+            if let Some(_) = split.next() {
+                return Err(ErrorKind::ResponseParse.into());
+            }
+
             Ok (ExportedInfo { lines, total_bytes } )
         } else {
             Err(ErrorKind::ResponseParse.into())
@@ -131,6 +140,10 @@ impl DeviceInfo {
             } else {
                 return Err(ErrorKind::ResponseParse.into());
             };
+
+            if let Some(_) = split.next() {
+                return Err(ErrorKind::ResponseParse.into());
+            }
 
             Ok (DeviceInfo { device, firmware } )
 
@@ -188,6 +201,10 @@ impl MemoryReading {
             return Err(ErrorKind::ResponseParse.into());
         };
 
+        if let Some(_) = split.next() {
+            return Err(ErrorKind::ResponseParse.into());
+        }
+
         Ok (MemoryReading { location, reading })
     }
 }
@@ -205,10 +222,15 @@ impl ProtocolLockStatus {
             let rest = response.get(7..).unwrap();
             let mut split = rest.split(',');
 
-            match split.next() {
+            let _plock_status = match split.next() {
                 Some("1") => Ok(ProtocolLockStatus::On),
                 Some("0") => Ok(ProtocolLockStatus::Off),
                 _ => return Err(ErrorKind::ResponseParse.into()),
+            };
+
+            match split.next() {
+                None => _plock_status,
+                _ => Err(ErrorKind::ResponseParse.into()),
             }
         } else {
             Err(ErrorKind::ResponseParse.into())
