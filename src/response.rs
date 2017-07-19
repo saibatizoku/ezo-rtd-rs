@@ -353,6 +353,33 @@ mod tests {
     }
 
     #[test]
+    fn parses_memory_reading() {
+        let response = "0,0";
+        assert_eq!(MemoryReading::parse(response).unwrap(),
+                   MemoryReading { location: 0, reading: 0.0 });
+
+        let response = "50,1234.5";
+        assert_eq!(MemoryReading::parse(response).unwrap(),
+                   MemoryReading { location: 50, reading: 1234.5 });
+
+        let response = "17,-10.5";
+        assert_eq!(MemoryReading::parse(response).unwrap(),
+                   MemoryReading { location: 17, reading: -10.5 });
+    }
+
+    #[test]
+    fn parsing_invalid_memory_reading_yields_error() {
+        let response = "";
+        assert!(MemoryReading::parse(response).is_err());
+
+        let response = "-x";
+        assert!(MemoryReading::parse(response).is_err());
+
+        let response = "-1,-1";
+        assert!(MemoryReading::parse(response).is_err());
+    }
+
+    #[test]
     fn parses_protocol_lock_status() {
         let response = "?Plock,1";
         assert_eq!(ProtocolLockStatus::parse(&response).unwrap(),
