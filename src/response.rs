@@ -325,6 +325,33 @@ mod tests {
         let response = "";
         assert!(DeviceInfo::parse(response).is_err());
     }
+
+    #[test]
+    fn parses_led_status() {
+        let response = "?L,1";
+        assert_eq!(LedStatus::parse(&response).unwrap(),
+                   LedStatus::On);
+
+        let response = "?L,0";
+        assert_eq!(LedStatus::parse(&response).unwrap(),
+                   LedStatus::Off);
+    }
+
+    #[test]
+    fn parsing_invalid_led_status_yields_error() {
+        let response = "";
+        assert!(LedStatus::parse(&response).is_err());
+
+        let response = "?L,";
+        assert!(LedStatus::parse(&response).is_err());
+
+        let response = "?L,b";
+        assert!(LedStatus::parse(&response).is_err());
+
+        let response = "?L,17";
+        assert!(LedStatus::parse(&response).is_err());
+    }
+
     #[test]
     fn parses_protocol_lock_status() {
         let response = "?Plock,1";
