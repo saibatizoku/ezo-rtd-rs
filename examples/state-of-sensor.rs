@@ -12,8 +12,14 @@ use ezo_rtd::command::{
     DataloggerInterval,
     LedState,
     ExportInfo,
-    Export,
     Sleep,
+};
+use ezo_rtd::response::{
+    DeviceStatus,
+    CalibrationStatus,
+    DataLoggerStorageIntervalSeconds,
+    LedStatus,
+    ExportedInfo,
 };
 use i2cdev::linux::LinuxI2CDevice;
 
@@ -24,15 +30,24 @@ fn run() -> Result<()> {
     let device_path = format!("/dev/i2c-{}", I2C_BUS_ID);
     let mut dev = LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR)
         .chain_err(|| "Could not open I2C device")?;
-    let _ = Status.run(&mut dev)?;
-    let _ = CalibrationState.run(&mut dev)?;
-    let _ = DataloggerInterval.run(&mut dev)?;
-    let _ = LedState.run(&mut dev)?;
-    let _ = ExportInfo.run(&mut dev)?;
-    let _ = Export.run(&mut dev)?;
-    let _ = Export.run(&mut dev)?;
-    let _ = Export.run(&mut dev)?;
+
+    let status: DeviceStatus = Status.run(&mut dev)?;
+    println!("DeviceStatus: {:?}", status);
+
+    let calibration: CalibrationStatus = CalibrationState.run(&mut dev)?;
+    println!("CalibrationState: {:?}", calibration);
+
+    let datalog_period: DataLoggerStorageIntervalSeconds = DataloggerInterval.run(&mut dev)?;
+    println!("DataloggerInterval: {:#?}", datalog_period);
+
+    let led_status: LedStatus = LedState.run(&mut dev)?;
+    println!("LedState: {:#?}", led_status);
+
+    let exports: ExportedInfo = ExportInfo.run(&mut dev)?;
+    println!("ExportInfo: {:#?}", exports);
+
     let _ = Sleep.run(&mut dev)?;
+
     Ok(())
 }
 
