@@ -11,21 +11,27 @@ extern crate i2cdev;
 use ezo_rtd::errors::*;
 use ezo_rtd::command::{
     Command,
-    Status,
+    DeviceInformation,
     CalibrationState,
     DataloggerInterval,
-    LedState,
     Export,
     ExportInfo,
+    LedState,
+    ReadingWithScale,
+    ScaleCelsius,
+    ScaleFahrenheit,
+    ScaleKelvin,
     Sleep,
+    Status,
 };
 use ezo_rtd::response::{
-    DeviceStatus,
     CalibrationStatus,
     DataLoggerStorageIntervalSeconds,
-    LedStatus,
+    DeviceInfo,
+    DeviceStatus,
     Exported,
     ExportedInfo,
+    LedStatus,
 };
 use i2cdev::linux::LinuxI2CDevice;
 
@@ -37,6 +43,9 @@ fn run() -> Result<()> {
     let mut dev = LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR)
         .chain_err(|| "Could not open I2C device")?;
 
+    let info: DeviceInfo = DeviceInformation.run(&mut dev)?;
+    println!("{:?}", info);
+
     let status: DeviceStatus = Status.run(&mut dev)?;
     println!("DeviceStatus: {:?}", status);
 
@@ -44,7 +53,7 @@ fn run() -> Result<()> {
     println!("CalibrationState: {:?}", calibration);
 
     let datalog_period: DataLoggerStorageIntervalSeconds = DataloggerInterval.run(&mut dev)?;
-    println!("DataloggerInterval: {:#?}", datalog_period);
+    println!("{:?}", datalog_period);
 
     let led_status: LedStatus = LedState.run(&mut dev)?;
     println!("LedState: {:#?}", led_status);
@@ -56,6 +65,24 @@ fn run() -> Result<()> {
         let exports: Exported = Export.run(&mut dev)?;
         println!("Exported: {:#?}", exports);
     }
+
+    let _kelvin = ScaleKelvin.run(&mut dev)?;
+    println!("Scale set to KELVIN");
+
+    let temperature = ReadingWithScale.run(&mut dev)?;
+    println!("{:?}", temperature);
+
+    let _fahrenheit = ScaleFahrenheit.run(&mut dev)?;
+    println!("Scale set to FAHRENHEIT");
+
+    let temperature = ReadingWithScale.run(&mut dev)?;
+    println!("{:?}", temperature);
+
+    let _celsius = ScaleCelsius.run(&mut dev)?;
+    println!("Scale set to CELSIUS");
+
+    let temperature = ReadingWithScale.run(&mut dev)?;
+    println!("{:?}", temperature);
 
     let _ = match Sleep.run(&mut dev) {
         Err(_) => println!("Sleeping...."),
