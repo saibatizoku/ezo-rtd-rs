@@ -58,21 +58,16 @@ pub enum Exported {
 
 impl Exported {
     pub fn parse(response: &str) -> Result<Exported> {
-        if response.starts_with("?EXPORT,") {
-            let num_str = response.get(8..).unwrap();
-            if num_str.starts_with("*") {
-                match num_str {
-                    "*DONE" => Ok(Exported::Done),
-                    _ => Err(ErrorKind::ResponseParse.into()),
-                }
-            } else {
-                match num_str.len() {
-                    1..13 => Ok(Exported::ExportString(num_str.to_string())),
-                    _ => Err(ErrorKind::ResponseParse.into()),
-                }
+        if response.starts_with("*") {
+            match response {
+                "*DONE" => Ok(Exported::Done),
+                _ => Err(ErrorKind::ResponseParse.into()),
             }
         } else {
-            Err(ErrorKind::ResponseParse.into())
+            match response.len() {
+                1..13 => Ok(Exported::ExportString(response.to_string())),
+                _ => Err(ErrorKind::ResponseParse.into()),
+            }
         }
     }
 }
@@ -86,23 +81,29 @@ pub struct ExportedInfo {
 
 impl ExportedInfo {
     pub fn parse(response: &str) -> Result<ExportedInfo> {
-        let mut split = response.split(",");
+        if response.starts_with("?EXPORT,") {
+            let num_str = response.get(8..).unwrap();
 
-        let lines = if let Some(lines_str) = split.next() {
-            u16::from_str(lines_str)
-                .chain_err(|| ErrorKind::ResponseParse)?
+            let mut split = num_str.split(",");
+
+            let lines = if let Some(lines_str) = split.next() {
+                u16::from_str(lines_str)
+                    .chain_err(|| ErrorKind::ResponseParse)?
+            } else {
+                return Err(ErrorKind::ResponseParse.into());
+            };
+
+            let total_bytes = if let Some(totalbytes_str) = split.next() {
+                u16::from_str(totalbytes_str)
+                    .chain_err(|| ErrorKind::ResponseParse)?
+            } else {
+                return Err(ErrorKind::ResponseParse.into());
+            };
+
+            Ok (ExportedInfo { lines, total_bytes } )
         } else {
-            return Err(ErrorKind::ResponseParse.into());
-        };
-
-        let total_bytes = if let Some(totalbytes_str) = split.next() {
-            u16::from_str(totalbytes_str)
-                .chain_err(|| ErrorKind::ResponseParse)?
-        } else {
-            return Err(ErrorKind::ResponseParse.into());
-        };
-
-        Ok (ExportedInfo { lines, total_bytes } )
+            Err(ErrorKind::ResponseParse.into())
+        }
     }
 }
 
