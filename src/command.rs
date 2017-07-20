@@ -48,12 +48,12 @@ define_command! {
 
 define_command! {
     doc: "`Cal,t` command, where `t` is of type `f64`.",
-    cmd: CalibrationTemperature(f64), { format!("Cal,{:.*}\0", 2, cmd) }, 1000
+    cmd: CalibrationTemperature(f64), { format!("Cal,{:.*}\0", 2, cmd) }, 1000, Ack
 }
 
 define_command! {
     doc: "`Cal,clear` command.",
-    CalibrationClear, { "Cal,clear\0".to_string() }, 300
+    CalibrationClear, { "Cal,clear\0".to_string() }, 300, Ack
 }
 
 define_command! {
@@ -76,17 +76,17 @@ define_command! {
 
 define_command! {
     doc: "`Import,n` command, where `n` is of type `String`.",
-    cmd: Import(String), { format!("Import,{}\0", cmd) }, 300
+    cmd: Import(String), { format!("Import,{}\0", cmd) }, 300, Ack
 }
 
 define_command! {
     doc: "`D,n` command, where `n` is of type `u16`.",
-    cmd: DataloggerPeriod(u16), { format!("D,{}\0", cmd) }, 300
+    cmd: DataloggerPeriod(u16), { format!("D,{}\0", cmd) }, 300, Ack
 }
 
 define_command! {
     doc: "`D,0` command.",
-    DataloggerDisable, { "D,0\0".to_string() }, 300
+    DataloggerDisable, { "D,0\0".to_string() }, 300, Ack
 }
 
 define_command! {
@@ -118,12 +118,12 @@ define_command! {
 
 define_command! {
     doc: "`L,1` command.",
-    LedOn, { "L,1\0".to_string() }, 300
+    LedOn, { "L,1\0".to_string() }, 300, Ack
 }
 
 define_command! {
     doc: "`L,0` command.",
-    LedOff, { "L,0\0".to_string() }, 300
+    LedOff, { "L,0\0".to_string() }, 300, Ack
 }
 
 define_command! {
@@ -134,7 +134,7 @@ define_command! {
 
 define_command! {
     doc: "`M,clear` command.",
-    MemoryClear, { "M,clear\0".to_string() }, 300
+    MemoryClear, { "M,clear\0".to_string() }, 300, Ack
 }
 
 define_command! {
@@ -151,12 +151,12 @@ define_command! {
 
 define_command! {
     doc: "`Plock,1` command.",
-    ProtocolLockEnable, { "Plock,1\0".to_string() }, 300
+    ProtocolLockEnable, { "Plock,1\0".to_string() }, 300, Ack
 }
 
 define_command! {
     doc: "`Plock,0` command.",
-    ProtocolLockDisable, { "Plock,0\0".to_string() }, 300
+    ProtocolLockDisable, { "Plock,0\0".to_string() }, 300, Ack
 }
 
 define_command! {
@@ -232,17 +232,17 @@ impl Command for ReadingWithScale {
 
 define_command! {
     doc: "`S,c` command.",
-    ScaleCelsius, { "S,c\0".to_string() }, 300
+    ScaleCelsius, { "S,c\0".to_string() }, 300, Ack
 }
 
 define_command! {
     doc: "`S,k` command.",
-    ScaleKelvin, { "S,k\0".to_string() }, 300
+    ScaleKelvin, { "S,k\0".to_string() }, 300, Ack
 }
 
 define_command! {
     doc: "`S,f` command.",
-    ScaleFahrenheit, { "S,f\0".to_string() }, 300
+    ScaleFahrenheit, { "S,f\0".to_string() }, 300, Ack
 }
 
 define_command! { 
