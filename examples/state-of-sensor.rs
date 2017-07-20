@@ -9,30 +9,11 @@ extern crate ezo_rtd;
 extern crate i2cdev;
 
 use ezo_rtd::errors::*;
-use ezo_rtd::command::{
-    Command,
-    DeviceInformation,
-    CalibrationState,
-    DataloggerInterval,
-    Export,
-    ExportInfo,
-    LedState,
-    ReadingWithScale,
-    ScaleCelsius,
-    ScaleFahrenheit,
-    ScaleKelvin,
-    Sleep,
-    Status,
-};
-use ezo_rtd::response::{
-    CalibrationStatus,
-    DataLoggerStorageIntervalSeconds,
-    DeviceInfo,
-    DeviceStatus,
-    Exported,
-    ExportedInfo,
-    LedStatus,
-};
+use ezo_rtd::command::{Command, DeviceInformation, CalibrationState, DataloggerInterval, Export,
+                       ExportInfo, LedState, ReadingWithScale, ScaleCelsius, ScaleFahrenheit,
+                       ScaleKelvin, Sleep, Status};
+use ezo_rtd::response::{CalibrationStatus, DataLoggerStorageIntervalSeconds, DeviceInfo,
+                        DeviceStatus, Exported, ExportedInfo, LedStatus};
 use i2cdev::linux::LinuxI2CDevice;
 
 const I2C_BUS_ID: u8 = 1;
@@ -81,33 +62,31 @@ fn run() -> Result<()> {
     let _celsius = ScaleCelsius.run(&mut dev)?;
     println!("Scale set to CELSIUS");
 
-    let _ = match ReadingWithScale.run(&mut dev) {
+    let _reading = match ReadingWithScale.run(&mut dev) {
+
         Ok(temperature) => println!("{:?}", temperature),
-        Err(e) => {
+
+        Err(Error(e, _)) => {
             match e {
-                Error(ErrorKind::PendingResponse, _) => {
-                    println!("Response is pending. Try again with a longer delay time.");
+                ErrorKind::PendingResponse => {
+                    println!("Response is pending. Try again with a longer delay time.")
                 }
-                Error(ErrorKind::DeviceErrorResponse, _) => {
-                    println!("The device responded with ERR.");
+
+                ErrorKind::DeviceErrorResponse => println!("The device responded with ERR."),
+
+                ErrorKind::NoDataExpectedResponse => {
+                    println!("The device responded that it has no data to send.")
                 }
-                Error(ErrorKind::NoDataExpectedResponse, _) => {
-                    println!("The device responded that it has no data to send.");
-                }
-                Error(ErrorKind::MalformedResponse, _) => {
-                    println!("The device response is unknown.");
-                }
-                _ => {
-                    println!("The response is plainly weird. It should not exist.");
-                }
-            };
+
+                ErrorKind::MalformedResponse => println!("The device response is unknown."),
+
+                _ => println!("The response is plainly weird. It should not exist."),
+            }
         }
     };
 
-    let _ = match Sleep.run(&mut dev) {
-        Err(_) => println!("Sleeping...."),
-        _ => (),
-    };
+    let _sleep = Sleep.run(&mut dev)?;
+    println!("Sleeping....");
 
     Ok(())
 }
