@@ -279,7 +279,7 @@ impl Temperature {
         }
     }
 
-    /// Parses the result of the "D" command to get a temperature reading.
+    /// Parses the result of the "R" command to get a temperature reading.
     /// Note that this depends on knowing the temperature scale
     /// which the device is configured to use.
     pub fn parse(response: &str, scale: TemperatureScale) -> Result<Temperature> {
@@ -293,7 +293,7 @@ impl Temperature {
 pub struct SensorReading(pub f64);
 
 impl SensorReading {
-    /// Parses the result of the "T" command to get a temperature reading.
+    /// Parses the result of the "R" command to get a temperature reading.
     /// Note that the returned value has no known units. It is your
     /// responsibility to know the current `TemperatureScale` setting.
     pub fn parse(response: &str) -> Result<SensorReading> {

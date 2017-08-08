@@ -1,6 +1,8 @@
-#![recursion_limit = "1024"]
 //! An example that takes readings from the RTD EZO chip in a loop.
 //!
+
+#![recursion_limit = "1024"]
+
 extern crate chrono;
 extern crate ezo_rtd;
 extern crate i2cdev;
@@ -31,13 +33,10 @@ fn run() -> Result<()> {
 
         let _out = _print_response(temperature)?;
 
-        let _ = match Sleep.run(&mut dev) {
-            Err(_) => (),
-            _ => (),
-        };
+        let _sleep = Sleep.run(&mut dev)?;
 
         // Ideally, every 10 seconds, fine-tune this to your hardware.
-        thread::sleep(Duration::new(9, 293798000));
+        thread::sleep(Duration::new(9, 300000000));
     }
 }
 

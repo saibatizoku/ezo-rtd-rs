@@ -184,9 +184,10 @@ impl Command for ReadingWithScale {
     }
 
     fn get_delay(&self) -> u64 {
-        // symbolic representation of the time it takes to execute both
-        // underlying commands.
-        900
+        // This command involves the sequential execution of
+        // `ScaleState.run(..)` and `Reading.run(..)`, thus
+        // the resulting delay is the sum of both commands.
+        ScaleState.get_delay() + Reading.get_delay()
     }
 
     fn run(&self, dev: &mut LinuxI2CDevice) -> Result<Temperature> {
@@ -240,16 +241,19 @@ define_command! {
     ScaleKelvin, { "S,k\0".to_string() }, 300, Ack
 }
 
+
 define_command! {
     doc: "`S,f` command.",
     ScaleFahrenheit, { "S,f\0".to_string() }, 300, Ack
 }
+
 
 define_command! { 
     doc: "`S,?` command. Returns a `TemperatureScale` response.",
     ScaleState, { "S,?\0".to_string() }, 300,
     resp: TemperatureScale, { TemperatureScale::parse(&resp) }
 }
+
 
 define_command! { 
     doc: "`Status` command. Returns a `DeviceStatus` response.",
@@ -365,20 +369,6 @@ mod tests {
     }
 
     #[test]
-    fn build_command_change_device_address() {
-        let cmd = DeviceAddress(88);
-        assert_eq!(cmd.get_command_string(), "I2C,88\0");
-        assert_eq!(cmd.get_delay(), 300);
-    }
-
-    #[test]
-    fn build_command_device_information() {
-        let cmd = DeviceInformation;
-        assert_eq!(cmd.get_command_string(), "I\0");
-        assert_eq!(cmd.get_delay(), 300);
-    }
-
-    #[test]
     fn build_command_export() {
         let cmd = Export;
         assert_eq!(cmd.get_command_string(), "Export\0");
@@ -411,6 +401,20 @@ mod tests {
     fn build_command_find() {
         let cmd = Find;
         assert_eq!(cmd.get_command_string(), "F\0");
+        assert_eq!(cmd.get_delay(), 300);
+    }
+
+    #[test]
+    fn build_command_device_information() {
+        let cmd = DeviceInformation;
+        assert_eq!(cmd.get_command_string(), "I\0");
+        assert_eq!(cmd.get_delay(), 300);
+    }
+
+    #[test]
+    fn build_command_change_device_address() {
+        let cmd = DeviceAddress(88);
+        assert_eq!(cmd.get_command_string(), "I2C,88\0");
         assert_eq!(cmd.get_delay(), 300);
     }
 
