@@ -5,8 +5,6 @@
 // `error_chain!` can recurse deeply
 #![recursion_limit = "1024"]
 
-#![feature(str_checked_slicing)]
-
 #![feature(exclusive_range_pattern)]
 
 #![feature(inclusive_range_syntax)]
@@ -16,6 +14,7 @@
 #[macro_use] extern crate error_chain;
 #[macro_use] extern crate ezo_common;
 extern crate i2cdev;
+extern crate lalrpop_util;
 
 // Use error-chain.
 pub mod errors;
