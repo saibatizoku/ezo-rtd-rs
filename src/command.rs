@@ -196,7 +196,7 @@ impl Command for ReadingWithScale {
 
         let cmd = Reading.get_command_string();
 
-        let _w = write_to_ezo(dev, cmd.as_bytes())
+        let _w = write_to_ezo(dev, &cmd)
             .chain_err(|| "Error writing to EZO device.")?;
 
         let _wait = thread::sleep(Duration::from_millis(Reading.get_delay()));
