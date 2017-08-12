@@ -80,8 +80,8 @@ define_command! {
 }
 
 define_command! {
-    doc: "`D,n` command, where `n` is of type `u16`.",
-    arg: DataloggerPeriod(u16), { format!("D,{}", arg) }, 300, Ack
+    doc: "`D,n` command, where `n` is of type `u32`.",
+    arg: DataloggerPeriod(u32), { format!("D,{}", arg) }, 300, Ack
 }
 
 define_command! {
@@ -106,7 +106,7 @@ define_command! {
 }
 
 define_command! {
-    doc: "`I2C,n` command, where `n` is of type `u64`.",
+    doc: "`I2C,n` command, where `n` is of type `u16`.",
     arg: DeviceAddress(u16), { format!("I2C,{}", arg) }, 300
 }
 
