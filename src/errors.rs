@@ -3,15 +3,17 @@ use ezo_common;
 
 error_chain! {
     errors {
-        // The unsuccessful response code
+        CommandParse {
+            description ("unsuccessful command parse")
+            display ("command was not obtainable")
+        }
         I2CRead {
             description ("unsuccessful device read")
             display ("response was not obtainable")
         }
-        // The response is not nul-terminated, or it is not valid ASCII/UTF-8
         MalformedResponse {
             description ("malformed response")
-            display ("response is not a valid nul-terminated UTF-8 string")
+            display ("response is not valid nul-terminated or a UTF-8 string")
         }
         // The response could not be parsed
         ResponseParse {
