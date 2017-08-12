@@ -1,0 +1,159 @@
+use std::str::FromStr;
+use command::ApiCommand;
+use ezo_common::BpsRate;
+
+grammar;
+
+// pub Command: String = {
+//     r"(?i)BAUD," <b:NumBaud> => format!("BAUD,{}", b),
+//     r"(?i)CAL," <NumFlt> => format!("CAL,{:.*}", 3, <>),
+//     r"(?i)CAL,?" => "CAL,?".to_string(),
+//     r"(?i)CAL,CLEAR" => "CAL,CLEAR".to_string(),
+//     r"(?i)D," <NumInt> => format!("D,{}", <>),
+//     r"(?i)D,?" => "D,?".to_string(),
+//     r"(?i)L,0" => "L,0".to_string(),
+//     r"(?i)L,1" => "L,1".to_string(),
+//     r"(?i)L,?" => "L,?".to_string(),
+// };
+/// Parse all EZO commands 
+pub Command: ApiCommand = {
+    BaudCmd,
+    CalCmd,
+    DatalogCmd,
+    ExportCmd,
+    ExportInfoCmd,
+    ImportCmd,
+    InfoCmd,
+    I2cCmd,
+    LedCmd,
+    MemoryCmd,
+    PlockCmd,
+    ReadCmd,
+    ScaleCmd,
+    StatusCmd,
+    SleepCmd,
+};
+
+pub NumBaud: BpsRate = {
+    "300" => BpsRate::Bps300,
+    "1200" => BpsRate::Bps1200,
+    "2400" => BpsRate::Bps2400,
+    "9600" => BpsRate::Bps9600,
+    "19200" => BpsRate::Bps19200,
+    "38400" => BpsRate::Bps38400,
+    "57600" => BpsRate::Bps57600,
+    "115200" => BpsRate::Bps115200,
+};
+
+BaudCmd: ApiCommand = {
+    "BAUD," <NumBaud> => ApiCommand::Baud(<>),
+};
+
+CalCmd: ApiCommand = {
+    "CAL,CLEAR" => ApiCommand::CalClear,
+    "CAL,?" => ApiCommand::CalStatus,
+    "CAL," <FloatNum> => ApiCommand::Calibrate(<>),
+};
+
+ExportCmd: ApiCommand = "EXPORT" => ApiCommand::Export;
+
+ExportInfoCmd: ApiCommand = "EXPORT,?" => ApiCommand::ExportInfo;
+
+ImportCmd: ApiCommand = "IMPORT," <ImportExportStr>=> ApiCommand::Import(<>.to_string());
+
+DatalogCmd: ApiCommand = {
+    "D,?" => ApiCommand::DataLoggerStatus,
+    "D," <n:U32Num> => {
+        match n {
+            0 => ApiCommand::DataLoggerOff,
+            _ => ApiCommand::DataLoggerSet(n),
+        }
+    }
+};
+
+FactoryCmd: ApiCommand = "FACTORY" => ApiCommand::Factory;
+InfoCmd: ApiCommand = "I" => ApiCommand::Info;
+I2cCmd: ApiCommand = "I2C," <IntNum> => ApiCommand::I2c(<>);
+
+LedCmd: ApiCommand = {
+    "L,0" => ApiCommand::LedOff,
+    "L,1" => ApiCommand::LedOn,
+    "L,?" => ApiCommand::LedStatus,
+};
+
+MemoryCmd: ApiCommand = {
+    "M" => ApiCommand::MemoryRecall,
+    "M,?" => ApiCommand::MemoryLast,
+    "M,CLEAR" => ApiCommand::MemoryClear,
+};
+
+PlockCmd: ApiCommand = {
+    "PLOCK,0" => ApiCommand::PlockOff,
+    "PLOCK,1" => ApiCommand::PlockOn,
+    "PLOCK,?" => ApiCommand::PlockStatus,
+};
+
+ReadCmd: ApiCommand = "R" => ApiCommand::Reading;
+
+ScaleCmd: ApiCommand = {
+    "S,?" => ApiCommand::ScaleStatus,
+    "S,C" => ApiCommand::ScaleCelsius,
+    "S,K" => ApiCommand::ScaleKelvin,
+    "S,F" => ApiCommand::ScaleFahrenheit,
+};
+
+StatusCmd: ApiCommand = "STATUS" => ApiCommand::Status;
+
+SleepCmd: ApiCommand = "SLEEP" => ApiCommand::Sleep;
+
+FloatNum: f64 = <s:FloatStr> => f64::from_str(s).unwrap();
+IntNum: u16 = <s:IntStr> => u16::from_str(s).unwrap();
+U32Num: u32 = <s:IntStr> => u32::from_str(s).unwrap();
+
+
+match {
+    r"(?i)cal,clear" => "CAL,CLEAR",
+    r"(?i)cal,\?" => "CAL,?",
+    r"(?i)export,\?" => "EXPORT,?",
+    r"(?i)export" => "EXPORT",
+    r"(?i)d,\?" => "D,?",
+    r"(?i)factory" => "FACTORY",
+    r"(?i)f" => "F",
+    r"(?i)i" => "I",
+    r"(?i)l,0" => "L,0",
+    r"(?i)l,1" => "L,1",
+    r"(?i)l,\?" => "L,?",
+    r"(?i)m,clear" => "M,CLEAR",
+    r"(?i)m,\?" => "M,?",
+    r"(?i)m" => "M",
+    r"(?i)plock,0" => "PLOCK,0",
+    r"(?i)plock,1" => "PLOCK,1",
+    r"(?i)plock,\?" => "PLOCK,?",
+    r"(?i)r" => "R",
+    r"(?i)s,\?" => "S,?",
+    r"(?i)s,c" => "S,C",
+    r"(?i)s,k" => "S,K",
+    r"(?i)s,f" => "S,F",
+    r"(?i)status" => "STATUS",
+    r"(?i)sleep" => "SLEEP",
+} else {
+    r"(?i)baud," => "BAUD,",
+    "300",
+    "1200",
+    "2400",
+    "9600",
+    "19200",
+    "38400",
+    "57600",
+    "115200",
+} else {
+    r"(?i)d," => "D,",
+    r"(?i)i2c," => "I2C,",
+    r"[0-9]+" => IntStr,
+} else {
+    r"(?i)cal," => "CAL,",
+    r"[+-]?([0-9]+\.[0-9]+|[0-9]+(\.[0-9]+)?)" => FloatStr,
+} else {
+    r"(?i)import," => "IMPORT,",
+    r"[0-9a-fA-F]{0,12}" => ImportExportStr,
+}
