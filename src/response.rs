@@ -1,5 +1,5 @@
 //! Initial code graciously donated by "Federico Mena Quintero <federico@gnome.org>".
-
+use std::fmt;
 use std::str::FromStr;
 
 use errors::*;
@@ -35,6 +35,16 @@ impl CalibrationStatus {
     }
 }
 
+impl fmt::Display for CalibrationStatus {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let status = match *self {
+            CalibrationStatus::Calibrated => "1",
+            CalibrationStatus::NotCalibrated => "0",
+        };
+        write!(f, "?CAL,{}", status)
+    }
+}
+
 /// Seconds between automatic logging of readings
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct DataLoggerStorageIntervalSeconds(pub u32);
@@ -47,10 +57,19 @@ impl DataLoggerStorageIntervalSeconds {
             let num_str = response.get(3..).unwrap();
             let num = u32::from_str(num_str)
                 .chain_err(|| ErrorKind::ResponseParse)?;
-            Ok(DataLoggerStorageIntervalSeconds(num))
+            match num {
+                0 | 10...320_000 => Ok(DataLoggerStorageIntervalSeconds(num)),
+                _ => Err(ErrorKind::ResponseParse.into()),
+            }
         } else {
             Err(ErrorKind::ResponseParse.into())
         }
+    }
+}
+
+impl fmt::Display for DataLoggerStorageIntervalSeconds {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "?D,{}", self.0)
     }
 }
 
@@ -74,6 +93,16 @@ impl Exported {
                 _ => Err(ErrorKind::ResponseParse.into()),
             }
         }
+    }
+}
+
+impl fmt::Display for Exported {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let export = match *self {
+            Exported::Done => "*DONE",
+            Exported::ExportString(ref r) => r,
+        };
+        write!(f, "{}", export)
     }
 }
 
@@ -116,6 +145,12 @@ impl ExportedInfo {
     }
 }
 
+impl fmt::Display for ExportedInfo {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "?EXPORT,{},{}", self.lines, self.total_bytes)
+    }
+}
+
 /// Current firmware settings of the RTD EZO chip.
 #[derive(Debug, Clone, PartialEq)]
 pub struct DeviceInfo {
@@ -145,11 +180,21 @@ impl DeviceInfo {
                 return Err(ErrorKind::ResponseParse.into());
             }
 
+            if firmware.len() == 0 || device.len() == 0 {
+                return Err(ErrorKind::ResponseParse.into());
+            }
+
             Ok (DeviceInfo { device, firmware } )
 
         } else {
             Err(ErrorKind::ResponseParse.into())
         }
+    }
+}
+
+impl fmt::Display for DeviceInfo {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "?I,{},{}", self.device, self.firmware)
     }
 }
 
@@ -173,6 +218,16 @@ impl LedStatus {
         } else {
             Err(ErrorKind::ResponseParse.into())
         }
+    }
+}
+
+impl fmt::Display for LedStatus {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let status = match *self {
+            LedStatus::On => "1",
+            LedStatus::Off => "0",
+        };
+        write!(f, "?L,{}", status)
     }
 }
 
@@ -209,6 +264,12 @@ impl MemoryReading {
     }
 }
 
+impl fmt::Display for MemoryReading {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{},{}", self.location, self.reading)
+    }
+}
+
 /// Status of I2C protocol lock.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ProtocolLockStatus {
@@ -238,6 +299,16 @@ impl ProtocolLockStatus {
     }
 }
 
+impl fmt::Display for ProtocolLockStatus {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let status = match *self {
+            ProtocolLockStatus::On => "1",
+            ProtocolLockStatus::Off => "0",
+        };
+        write!(f, "?PLOCK,{}", status)
+    }
+}
+
 /// Temperature scales supported by the RTD EZO sensor.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum TemperatureScale {
@@ -255,6 +326,17 @@ impl TemperatureScale {
             "?S,F" => Ok(TemperatureScale::Fahrenheit),
             _ => Err(ErrorKind::ResponseParse.into()),
         }
+    }
+}
+
+impl fmt::Display for TemperatureScale {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let status = match *self {
+            TemperatureScale::Celsius => "C",
+            TemperatureScale::Kelvin => "K",
+            TemperatureScale::Fahrenheit => "F",
+        };
+        write!(f, "?S,{}", status)
     }
 }
 
@@ -288,6 +370,17 @@ impl Temperature {
     }
 }
 
+impl fmt::Display for Temperature {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let (temp, scale) = match *self {
+            Temperature::Celsius(t) => (t, "CELSIUS"),
+            Temperature::Kelvin(t) => (t, "KELVIN"),
+            Temperature::Fahrenheit(t) => (t, "FAHRENHEIT"),
+        };
+        write!(f, "{},{}", temp, scale)
+    }
+}
+
 /// A temperature reading
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct SensorReading(pub f64);
@@ -302,6 +395,12 @@ impl SensorReading {
     }
 }
 
+impl fmt::Display for SensorReading {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 /// Reason for which the device restarted, data sheet pp. 58
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum RestartReason {
@@ -310,6 +409,19 @@ pub enum RestartReason {
     BrownOut,
     Watchdog,
     Unknown,
+}
+
+impl fmt::Display for RestartReason {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let status = match *self {
+            RestartReason::PoweredOff => "P",
+            RestartReason::SoftwareReset => "S",
+            RestartReason::BrownOut => "B",
+            RestartReason::Watchdog => "W",
+            RestartReason::Unknown => "U",
+        };
+        write!(f, "{}", status)
+    }
 }
 
 /// Response from the "Status" command to get the device status
