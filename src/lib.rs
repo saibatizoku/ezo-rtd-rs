@@ -72,25 +72,28 @@ mod tests {
 
     #[test]
     fn parses_baud_commands() {
-        let cmd = command::ApiCommand::parse("baud,9600").unwrap();
+        let cmd = parsers::parse_Command("baud,9600").unwrap();
         assert_eq!(format!("{:?}", cmd), "Baud(Bps9600)");
 
-        let cmd = command::ApiCommand::parse("baud,2400").unwrap();
+        let cmd = parsers::parse_Command("baud,2400").unwrap();
         assert_eq!(format!("{:?}", cmd), "Baud(Bps2400)");
     }
 
     #[test]
     fn parsing_invalid_baud_commands_yields_err() {
-        let cmd = command::ApiCommand::parse("baud,8600");
+        let cmd = parsers::parse_Command("baud,8600");
         assert!(cmd.is_err());
 
-        let cmd = command::ApiCommand::parse("baud,");
+        let cmd = parsers::parse_Command("baud,");
         assert!(cmd.is_err());
     }
 
     #[test]
     fn parses_calibration_commands() {
-        let cmd = command::ApiCommand::parse("caL,1.0").unwrap();
+        let cmd = parsers::parse_Command("caL,0.0").unwrap();
+        assert_eq!(format!("{:?}", cmd), "Calibrate(0)");
+
+        let cmd = parsers::parse_Command("caL,1.0").unwrap();
         assert_eq!(format!("{:?}", cmd), "Calibrate(1)");
 
         let cmd = parsers::parse_Command("caL,10.98857").unwrap();
@@ -104,20 +107,90 @@ mod tests {
     }
 
     #[test]
+    fn parsing_invalid_calibration_commands_yields_err() {
+        let cmd = parsers::parse_Command("cal,!?");
+        assert!(cmd.is_err());
+
+        let cmd = parsers::parse_Command("cal,");
+        assert!(cmd.is_err());
+    }
+
+    #[test]
     fn parses_datalogger_commands() {
-        let cmd = command::ApiCommand::parse("D,0").unwrap();
+        let cmd = parsers::parse_Command("D,0").unwrap();
         assert_eq!(format!("{:?}", cmd), "DataLoggerOff");
 
-        let cmd = parsers::parse_Command("D,1").unwrap();
-        assert_eq!(format!("{:?}", cmd), "DataLoggerSet(1)");
+        let cmd = parsers::parse_Command("D,320000").unwrap();
+        assert_eq!(format!("{:?}", cmd), "DataLoggerSet(320000)");
+
+        let cmd = parsers::parse_Command("D,10").unwrap();
+        assert_eq!(format!("{:?}", cmd), "DataLoggerSet(10)");
 
         let cmd = parsers::parse_Command("D,?").unwrap();
         assert_eq!(format!("{:?}", cmd), "DataLoggerStatus");
     }
 
     #[test]
+    fn parsing_invalid_datalogger_commands_yields_err() {
+        let cmd = parsers::parse_Command("d,!?");
+        assert!(cmd.is_err());
+
+        let cmd = parsers::parse_Command("D,0.0");
+        assert!(cmd.is_err());
+
+        let cmd = parsers::parse_Command("d,");
+        assert!(cmd.is_err());
+    }
+
+    #[test]
+    fn parses_device_info_command() {
+        let cmd = parsers::parse_Command("i").unwrap();
+        assert_eq!(format!("{:?}", cmd), "Info");
+
+        let cmd = parsers::parse_Command("I").unwrap();
+        assert_eq!(format!("{:?}", cmd), "Info");
+    }
+
+    #[test]
+    fn parsing_invalid_device_info_command_yields_err() {
+        let cmd = parsers::parse_Command("i,?");
+        println!("cmd: {:?}", cmd);
+        assert!(cmd.is_err());
+
+        let cmd = parsers::parse_Command("info");
+        assert!(cmd.is_err());
+
+        let cmd = parsers::parse_Command("i,");
+        assert!(cmd.is_err());
+    }
+
+    #[test]
+    fn parses_device_address_command() {
+        let cmd = parsers::parse_Command("i2c,68").unwrap();
+        assert_eq!(format!("{:?}", cmd), "I2c(68)");
+
+        let cmd = parsers::parse_Command("I2C,128").unwrap();
+        assert_eq!(format!("{:?}", cmd), "I2c(128)");
+    }
+
+    #[test]
+    fn parsing_invalid_device_address_command_yields_err() {
+        let cmd = parsers::parse_Command("i2c,?");
+        assert!(cmd.is_err());
+
+        let cmd = parsers::parse_Command("i2c,10.5");
+        assert!(cmd.is_err());
+
+        let cmd = parsers::parse_Command("i2c");
+        assert!(cmd.is_err());
+
+        let cmd = parsers::parse_Command("i2c,");
+        assert!(cmd.is_err());
+    }
+
+    #[test]
     fn parses_led_commands() {
-        let cmd = command::ApiCommand::parse("L,0").unwrap();
+        let cmd = parsers::parse_Command("L,0").unwrap();
         assert_eq!(format!("{:?}", cmd), "LedOff");
 
         let cmd = parsers::parse_Command("L,1").unwrap();
@@ -125,5 +198,23 @@ mod tests {
 
         let cmd = parsers::parse_Command("L,?").unwrap();
         assert_eq!(format!("{:?}", cmd), "LedStatus");
+    }
+
+    #[test]
+    fn parsing_invalid_led_commands_yields_err() {
+        let cmd = parsers::parse_Command("l,!?");
+        println!("cmd: {:?}", cmd);
+        assert!(cmd.is_err());
+
+        let cmd = parsers::parse_Command("L,0.0");
+        println!("cmd: {:?}", cmd);
+        assert!(cmd.is_err());
+
+        let cmd = parsers::parse_Command("L,2");
+        println!("cmd: {:?}", cmd);
+        assert!(cmd.is_err());
+
+        let cmd = parsers::parse_Command("L,");
+        assert!(cmd.is_err());
     }
 }
