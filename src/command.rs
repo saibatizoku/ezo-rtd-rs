@@ -3,6 +3,7 @@
 use std::thread;
 use std::time::Duration;
 
+use parsers;
 use errors::*;
 use response::{
     CalibrationStatus,
@@ -31,6 +32,100 @@ use i2cdev::linux::LinuxI2CDevice;
 
 /// Maximum ascii-character response size + 2
 pub const MAX_DATA: usize = 16;
+
+/// Public Commands API
+#[derive(Debug, PartialEq)]
+pub enum ApiCommand {
+    Baud(BpsRate),
+    Calibrate(f64),
+    CalClear,
+    CalStatus,
+    Export,
+    ExportInfo,
+    Import(String),
+    DataLoggerSet(u32),
+    DataLoggerOff,
+    DataLoggerStatus,
+    Factory,
+    Find,
+    I2c(u16),
+    Info,
+    LedOff,
+    LedOn,
+    LedStatus,
+    MemoryClear,
+    MemoryRecall,
+    MemoryLast,
+    PlockOff,
+    PlockOn,
+    PlockStatus,
+    Reading,
+    ScaleCelsius,
+    ScaleKelvin,
+    ScaleFahrenheit,
+    ScaleStatus,
+    Status,
+    Sleep,
+    _Error,
+}
+
+impl ApiCommand {
+    pub fn parse(cmd: &str) -> Result<ApiCommand> {
+        match parsers::parse_Command(cmd) {
+            Ok(c) => Ok(c),
+            _ => Err(ErrorKind::CommandParse.into()),
+        }
+    }
+
+    pub fn run(&self, dev: &mut LinuxI2CDevice) -> Result<Option<String>> {
+        let _cmd = match *self {
+            ApiCommand::Baud(ref b) => Baud(b.clone()).run(dev)?,
+            ApiCommand::Calibrate(t) => CalibrationTemperature(t).run(dev)?,
+            ApiCommand::CalClear => CalibrationClear.run(dev)?,
+            ApiCommand::CalStatus => {
+                let response = CalibrationState.run(dev)?;
+                return Ok(Some(format!("{}", response)));
+            },
+            ApiCommand::DataLoggerSet(n) => DataloggerPeriod(n).run(dev)?,
+            ApiCommand::DataLoggerOff => DataloggerDisable.run(dev)?,
+            ApiCommand::DataLoggerStatus => {
+                let response = DataloggerInterval.run(dev)?;
+                return Ok(Some(format!("{}", response)));
+            },
+            ApiCommand::Export => {
+                let response = Export.run(dev)?;
+                return Ok(Some(format!("{}", response)));
+            },
+            ApiCommand::ExportInfo => {
+                let response = ExportInfo.run(dev)?;
+                return Ok(Some(format!("{}", response)));
+            },
+            ApiCommand::Import(ref s) => Import(s.clone()).run(dev)?,
+            ApiCommand::Factory => Factory.run(dev)?,
+            ApiCommand::Find => Find.run(dev)?,
+            ApiCommand::Info => {
+                let response = DeviceInformation.run(dev)?;
+                return Ok(Some(format!("{}", response)));
+            },
+            ApiCommand::I2c(addr) => DeviceAddress(addr).run(dev)?,
+            ApiCommand::LedOff => LedOff.run(dev)?,
+            ApiCommand::LedOn => LedOn.run(dev)?,
+            ApiCommand::LedStatus => {
+                let response = LedState.run(dev)?;
+                return Ok(Some(format!("{}", response)));
+            },
+            ApiCommand::PlockOff => ProtocolLockDisable.run(dev)?,
+            ApiCommand::PlockOn => ProtocolLockEnable.run(dev)?,
+            ApiCommand::PlockStatus => {
+                let response = ProtocolLockState.run(dev)?;
+                return Ok(Some(format!("{}", response)));
+            },
+            ApiCommand::Sleep => Sleep.run(dev)?,
+            ApiCommand::_Error | _ => return Err(ErrorKind::CommandParse.into()),
+        };
+        Ok(None)
+    }
+}
 
 /// I2C command for the EZO chip.
 pub trait Command {
