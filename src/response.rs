@@ -356,12 +356,18 @@ impl DeviceStatus {
     }
 }
 
+impl fmt::Display for DeviceStatus {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "?STATUS,{},{}", self.restart_reason, self.vcc_voltage)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn parses_calibration_status() {
+    fn parses_response_to_calibration_status() {
         let response = "?CAL,1";
         assert_eq!(CalibrationStatus::parse(&response).unwrap(),
                    CalibrationStatus::Calibrated);
@@ -369,6 +375,15 @@ mod tests {
         let response = "?CAL,0";
         assert_eq!(CalibrationStatus::parse(&response).unwrap(),
                    CalibrationStatus::NotCalibrated);
+    }
+
+    #[test]
+    fn parses_calibration_status_to_response() {
+        let calibration_status = CalibrationStatus::Calibrated;
+        assert_eq!(format!("{}", calibration_status), "?CAL,1");
+
+        let calibration_status = CalibrationStatus::NotCalibrated;
+        assert_eq!(format!("{}", calibration_status), "?CAL,0");
     }
 
     #[test]
@@ -387,14 +402,38 @@ mod tests {
     }
 
     #[test]
-    fn parses_data_logger_storage_interval() {
-        let response = "?D,1";
+    fn parses_response_to_data_logger_storage_interval() {
+        let response = "?D,0";
         assert_eq!(DataLoggerStorageIntervalSeconds::parse(response).unwrap(),
-                   DataLoggerStorageIntervalSeconds(1));
+                   DataLoggerStorageIntervalSeconds(0));
+
+        let response = "?D,10";
+        assert_eq!(DataLoggerStorageIntervalSeconds::parse(response).unwrap(),
+                   DataLoggerStorageIntervalSeconds(10));
 
         let response = "?D,42";
         assert_eq!(DataLoggerStorageIntervalSeconds::parse(response).unwrap(),
                    DataLoggerStorageIntervalSeconds(42));
+
+        let response = "?D,320000";
+        assert_eq!(DataLoggerStorageIntervalSeconds::parse(response).unwrap(),
+                   DataLoggerStorageIntervalSeconds(320000));
+    }
+
+    #[test]
+    fn parses_data_logger_storage_interval_to_response() {
+        let interval = DataLoggerStorageIntervalSeconds(0);
+        assert_eq!(format!("{}", interval), "?D,0");
+
+        let interval = DataLoggerStorageIntervalSeconds(10);
+        assert_eq!(format!("{}", interval), "?D,10");
+
+        let interval = DataLoggerStorageIntervalSeconds(42);
+        assert_eq!(format!("{}", interval), "?D,42");
+
+        let interval = DataLoggerStorageIntervalSeconds(320000);
+        assert_eq!(format!("{}", interval), "?D,320000");
+
     }
 
     #[test]
@@ -405,23 +444,48 @@ mod tests {
         let response = "?D,-1";
         assert!(DataLoggerStorageIntervalSeconds::parse(response).is_err());
 
+        let response = "?D,9";
+        assert!(DataLoggerStorageIntervalSeconds::parse(response).is_err());
+
+        let response = "?D,320001";
+        assert!(DataLoggerStorageIntervalSeconds::parse(response).is_err());
+
         let response = "?D,foo";
         assert!(DataLoggerStorageIntervalSeconds::parse(response).is_err());
     }
 
     #[test]
-    fn parses_data_export_string() {
-        let response = "123456789012";
+    fn parses_response_to_data_export_string() {
+        let response = "0";
         assert_eq!(Exported::parse(response).unwrap(),
-                   Exported::ExportString("123456789012".to_string()));
+                   Exported::ExportString("0".to_string()));
 
-        let response = "myresponse";
+        let response = "012abc";
         assert_eq!(Exported::parse(response).unwrap(),
-                   Exported::ExportString("myresponse".to_string()));
+                   Exported::ExportString("012abc".to_string()));
+
+        let response = "123456abcdef";
+        assert_eq!(Exported::parse(response).unwrap(),
+                   Exported::ExportString("123456abcdef".to_string()));
 
         let response = "*DONE";
         assert_eq!(Exported::parse(response).unwrap(),
                    Exported::Done);
+    }
+
+    #[test]
+    fn parses_data_export_string_to_response() {
+        let exported = Exported::ExportString("0".to_string());
+        assert_eq!(format!("{}", exported), "0");
+
+        let exported = Exported::ExportString("012abc".to_string());
+        assert_eq!(format!("{}", exported), "012abc");
+
+        let exported = Exported::ExportString("123456abcdef".to_string());
+        assert_eq!(format!("{}", exported), "123456abcdef");
+
+        let exported = Exported::ExportString("*DONE".to_string());
+        assert_eq!(format!("{}", exported), "*DONE");
     }
 
     #[test]
@@ -440,10 +504,23 @@ mod tests {
     }
 
     #[test]
-    fn parses_export_info() {
+    fn parses_response_to_export_info() {
         let response = "?EXPORT,0,0";
         assert_eq!(ExportedInfo::parse(response).unwrap(),
                    ExportedInfo { lines: 0, total_bytes: 0 } );
+
+        let response = "?EXPORT,10,120";
+        assert_eq!(ExportedInfo::parse(response).unwrap(),
+                   ExportedInfo { lines: 10, total_bytes: 120 } );
+    }
+
+    #[test]
+    fn parses_export_info_to_response() {
+        let export_info = ExportedInfo { lines: 0, total_bytes: 0 };
+        assert_eq!(format!("{}", export_info), "?EXPORT,0,0");
+
+        let export_info = ExportedInfo { lines: 10, total_bytes: 120 };
+        assert_eq!(format!("{}", export_info), "?EXPORT,10,120");
     }
 
     #[test]
@@ -465,7 +542,7 @@ mod tests {
     }
 
     #[test]
-    fn parses_device_information() {
+    fn parses_response_to_device_information() {
         let response = "?I,RTD,2.01";
         assert_eq!(DeviceInfo::parse(response).unwrap(),
                    DeviceInfo {
@@ -473,13 +550,27 @@ mod tests {
                        firmware: "2.01".to_string(),
                    } );
 
-        let response = "?I,,";
+        let response = "?I,RTD,1.98";
         assert_eq!(DeviceInfo::parse(response).unwrap(),
                    DeviceInfo {
-                       device: "".to_string(),
-                       firmware: "".to_string(),
+                       device: "RTD".to_string(),
+                       firmware: "1.98".to_string(),
                    } );
+    }
 
+    #[test]
+    fn parses_device_information_to_response() {
+        let device_info = DeviceInfo {
+            device: "RTD".to_string(),
+            firmware: "2.01".to_string(),
+        };
+        assert_eq!(format!("{}", device_info), "?I,RTD,2.01");
+
+        let device_info = DeviceInfo {
+            device: "RTD".to_string(),
+            firmware: "1.98".to_string(),
+        };
+        assert_eq!(format!("{}", device_info), "?I,RTD,1.98");
     }
 
     #[test]
@@ -493,12 +584,15 @@ mod tests {
         let response = "?I,";
         assert!(DeviceInfo::parse(response).is_err());
 
+        let response = "?I,,";
+        assert!(DeviceInfo::parse(response).is_err());
+
         let response = "?I,a,b,c";
         assert!(DeviceInfo::parse(response).is_err());
     }
 
     #[test]
-    fn parses_led_status() {
+    fn parses_response_to_led_status() {
         let response = "?L,1";
         assert_eq!(LedStatus::parse(&response).unwrap(),
                    LedStatus::On);
@@ -506,6 +600,15 @@ mod tests {
         let response = "?L,0";
         assert_eq!(LedStatus::parse(&response).unwrap(),
                    LedStatus::Off);
+    }
+
+    #[test]
+    fn parses_led_status_to_response() {
+        let led = LedStatus::On;
+        assert_eq!(format!("{}", led), "?L,1");
+
+        let led = LedStatus::Off;
+        assert_eq!(format!("{}", led), "?L,0");
     }
 
     #[test]
@@ -524,7 +627,7 @@ mod tests {
     }
 
     #[test]
-    fn parses_memory_reading() {
+    fn parses_response_to_memory_reading() {
         let response = "0,0";
         assert_eq!(MemoryReading::parse(response).unwrap(),
                    MemoryReading { location: 0, reading: 0.0 });
@@ -536,6 +639,18 @@ mod tests {
         let response = "17,-10.5";
         assert_eq!(MemoryReading::parse(response).unwrap(),
                    MemoryReading { location: 17, reading: -10.5 });
+    }
+
+    #[test]
+    fn parses_memory_reading_to_response() {
+        let memory = MemoryReading { location: 0, reading: 0.0 };
+        assert_eq!(format!("{}", memory), "0,0");
+
+        let memory = MemoryReading { location: 50, reading: 1234.5 };
+        assert_eq!(format!("{}", memory), "50,1234.5");
+
+        let memory = MemoryReading { location: 17, reading: -10.5 };
+        assert_eq!(format!("{}", memory), "17,-10.5");
     }
 
     #[test]
@@ -554,7 +669,7 @@ mod tests {
     }
 
     #[test]
-    fn parses_protocol_lock_status() {
+    fn parses_response_to_protocol_lock_status() {
         let response = "?PLOCK,1";
         assert_eq!(ProtocolLockStatus::parse(&response).unwrap(),
                    ProtocolLockStatus::On);
@@ -562,6 +677,15 @@ mod tests {
         let response = "?PLOCK,0";
         assert_eq!(ProtocolLockStatus::parse(&response).unwrap(),
                    ProtocolLockStatus::Off);
+    }
+
+    #[test]
+    fn parses_protocol_lock_status_to_response() {
+        let plock = ProtocolLockStatus::On;
+        assert_eq!(format!("{}", plock), "?PLOCK,1");
+
+        let plock = ProtocolLockStatus::Off;
+        assert_eq!(format!("{}", plock), "?PLOCK,0");
     }
 
     #[test]
@@ -580,7 +704,7 @@ mod tests {
     }
 
     #[test]
-    fn parses_sensor_reading() {
+    fn parses_response_to_sensor_reading() {
         let response = "0";
         assert_eq!(SensorReading::parse(response).unwrap(),
                    SensorReading(0.0));
@@ -595,6 +719,18 @@ mod tests {
     }
 
     #[test]
+    fn parses_sensor_reading_to_response() {
+        let reading = SensorReading(0.0);
+        assert_eq!(format!("{}", reading), "0");
+
+        let reading = SensorReading(1234.5);
+        assert_eq!(format!("{}", reading), "1234.5");
+
+        let reading = SensorReading(-10.5);
+        assert_eq!(format!("{}", reading), "-10.5");
+    }
+
+    #[test]
     fn parsing_invalid_sensor_reading_yields_error() {
         let response = "";
         assert!(SensorReading::parse(response).is_err());
@@ -604,7 +740,7 @@ mod tests {
     }
 
     #[test]
-    fn parses_temperature_scale() {
+    fn parses_response_to_temperature_scale() {
         let response = "?S,C";
         assert_eq!(TemperatureScale::parse(&response).unwrap(),
                    TemperatureScale::Celsius);
@@ -619,6 +755,18 @@ mod tests {
     }
 
     #[test]
+    fn parses_temperature_scale_to_response() {
+        let scale = TemperatureScale::Celsius;
+        assert_eq!(format!("{}", scale), "?S,C");
+
+        let scale = TemperatureScale::Kelvin;
+        assert_eq!(format!("{}", scale), "?S,K");
+
+        let scale = TemperatureScale::Fahrenheit;
+        assert_eq!(format!("{}", scale), "?S,F");
+    }
+
+    #[test]
     fn parsing_invalid_temperature_scale_yields_error() {
         let response = "";
         assert!(TemperatureScale::parse(&response).is_err());
@@ -628,7 +776,7 @@ mod tests {
     }
 
     #[test]
-    fn parses_temperature_with_scale() {
+    fn parses_response_to_temperature_with_scale() {
         let response = "0";
         assert_eq!(Temperature::parse(response, TemperatureScale::Celsius).unwrap(),
                    Temperature::Celsius(0.0));
@@ -643,6 +791,18 @@ mod tests {
     }
 
     #[test]
+    fn parses_temperature_with_scale_to_response() {
+        let temperature = Temperature::Celsius(0.0);
+        assert_eq!(format!("{}", temperature), "0,CELSIUS");
+
+        let temperature = Temperature::Kelvin(1234.5);
+        assert_eq!(format!("{}", temperature), "1234.5,KELVIN");
+
+        let temperature = Temperature::Fahrenheit(-10.5);
+        assert_eq!(format!("{}", temperature), "-10.5,FAHRENHEIT");
+    }
+
+    #[test]
     fn parsing_invalid_temperature_yields_error() {
         let response = "";
         assert!(Temperature::parse(response, TemperatureScale::Celsius).is_err());
@@ -652,7 +812,7 @@ mod tests {
     }
 
     #[test]
-    fn parses_device_status() {
+    fn parses_response_to_device_status() {
         let response = "?STATUS,P,1.5";
         assert_eq!(DeviceStatus::parse(response).unwrap(),
                    DeviceStatus {
@@ -682,11 +842,20 @@ mod tests {
                    });
 
         let response = "?STATUS,U,1.5";
-        assert_eq!(DeviceStatus::parse(response).unwrap(),
-                   DeviceStatus {
-                       restart_reason: RestartReason::Unknown,
-                       vcc_voltage: 1.5,
-                   });
+        let device_status = DeviceStatus {
+            restart_reason: RestartReason::Unknown,
+            vcc_voltage: 1.5,
+        };
+        assert_eq!(DeviceStatus::parse(response).unwrap(), device_status);
+    }
+
+    #[test]
+    fn parses_device_status_to_response() {
+        let device_status = DeviceStatus {
+            restart_reason: RestartReason::Unknown,
+            vcc_voltage: 3.15,
+        };
+        assert_eq!(format!("{}", device_status), "?STATUS,U,3.15");
     }
 
     #[test]
