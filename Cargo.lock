@@ -166,7 +166,7 @@ dependencies = [
 [[package]]
 name = "ezo_common"
 version = "0.1.0"
-source = "git+https://github.com/saibatizoku/ezo-common-rs.git#117834e5a079d3b553ac28c0928a3f09b1b7131b"
+source = "git+https://github.com/saibatizoku/ezo-common-rs.git#03531cc3bf4e3f33f228351cfa7044b253ea01e3"
 dependencies = [
  "chrono 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "error-chain 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
