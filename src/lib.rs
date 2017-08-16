@@ -32,51 +32,32 @@ pub mod parsers;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ezo_common::BpsRate;
-
-    #[test]
-    fn parses_baud_rates() {
-        let cmd = parsers::parse_NumBaud("300").unwrap();
-        assert_eq!(cmd, BpsRate::Bps300);
-
-        let cmd = parsers::parse_NumBaud("1200").unwrap();
-        assert_eq!(cmd, BpsRate::Bps1200);
-
-        let cmd = parsers::parse_NumBaud("2400").unwrap();
-        assert_eq!(cmd, BpsRate::Bps2400);
-
-        let cmd = parsers::parse_NumBaud("9600").unwrap();
-        assert_eq!(cmd, BpsRate::Bps9600);
-
-        let cmd = parsers::parse_NumBaud("19200").unwrap();
-        assert_eq!(cmd, BpsRate::Bps19200);
-
-        let cmd = parsers::parse_NumBaud("38400").unwrap();
-        assert_eq!(cmd, BpsRate::Bps38400);
-
-        let cmd = parsers::parse_NumBaud("57600").unwrap();
-        assert_eq!(cmd, BpsRate::Bps57600);
-
-        let cmd = parsers::parse_NumBaud("115200").unwrap();
-        assert_eq!(cmd, BpsRate::Bps115200);
-    }
-
-    #[test]
-    fn parsing_invalid_baud_rates_yields_err() {
-        let cmd = parsers::parse_NumBaud("8600");
-        assert!(cmd.is_err());
-
-        let cmd = parsers::parse_NumBaud("");
-        assert!(cmd.is_err());
-    }
 
     #[test]
     fn parses_baud_commands() {
-        let cmd = parsers::parse_Command("baud,9600").unwrap();
-        assert_eq!(format!("{:?}", cmd), "Baud(Bps9600)");
+        let cmd = parsers::parse_Command("baud,300").unwrap();
+        assert_eq!(format!("{:?}", cmd), "Baud(Bps300)");
+
+        let cmd = parsers::parse_Command("baud,1200").unwrap();
+        assert_eq!(format!("{:?}", cmd), "Baud(Bps1200)");
 
         let cmd = parsers::parse_Command("baud,2400").unwrap();
         assert_eq!(format!("{:?}", cmd), "Baud(Bps2400)");
+
+        let cmd = parsers::parse_Command("baud,9600").unwrap();
+        assert_eq!(format!("{:?}", cmd), "Baud(Bps9600)");
+
+        let cmd = parsers::parse_Command("baud,19200").unwrap();
+        assert_eq!(format!("{:?}", cmd), "Baud(Bps19200)");
+
+        let cmd = parsers::parse_Command("baud,38400").unwrap();
+        assert_eq!(format!("{:?}", cmd), "Baud(Bps38400)");
+
+        let cmd = parsers::parse_Command("baud,57600").unwrap();
+        assert_eq!(format!("{:?}", cmd), "Baud(Bps57600)");
+
+        let cmd = parsers::parse_Command("baud,115200").unwrap();
+        assert_eq!(format!("{:?}", cmd), "Baud(Bps115200)");
     }
 
     #[test]
