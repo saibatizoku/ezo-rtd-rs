@@ -15,7 +15,7 @@
 #[macro_use] extern crate ezo_common;
 extern crate i2cdev;
 
-// Use error-chain.
+/// Errors handled.
 pub mod errors;
 
 /// Issuable commands for the EZO RTD Chip.
