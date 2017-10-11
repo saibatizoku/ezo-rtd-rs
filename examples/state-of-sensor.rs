@@ -42,7 +42,7 @@ fn run() -> Result<()> {
     let ExportedInfo { lines, total_bytes } = ExportInfo.run(&mut dev)?;
     println!("ExportInfo: #lines {}, #bytes {}", lines, total_bytes);
 
-    for _ in 0...lines {
+    for _ in 0..=lines {
         let exports: Exported = Export.run(&mut dev)?;
         println!("Exported: {:?}", exports);
     }

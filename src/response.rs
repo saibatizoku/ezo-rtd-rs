@@ -37,11 +37,10 @@ impl CalibrationStatus {
 
 impl fmt::Display for CalibrationStatus {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let status = match *self {
-            CalibrationStatus::Calibrated => "1",
-            CalibrationStatus::NotCalibrated => "0",
-        };
-        write!(f, "?CAL,{}", status)
+        match *self {
+            CalibrationStatus::Calibrated => write!(f, "calibrated"),
+            CalibrationStatus::NotCalibrated => write!(f, "not-calibrated"),
+        }
     }
 }
 
@@ -69,7 +68,7 @@ impl DataLoggerStorageIntervalSeconds {
 
 impl fmt::Display for DataLoggerStorageIntervalSeconds {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "?D,{}", self.0)
+        write!(f, "{}", self.0)
     }
 }
 
@@ -98,11 +97,10 @@ impl Exported {
 
 impl fmt::Display for Exported {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let export = match *self {
-            Exported::Done => "*DONE",
-            Exported::ExportString(ref r) => r,
-        };
-        write!(f, "{}", export)
+        match *self {
+            Exported::ExportString(ref s) => write!(f, "{}", s),
+            Exported::Done => write!(f, "DONE"),
+        }
     }
 }
 
@@ -147,7 +145,7 @@ impl ExportedInfo {
 
 impl fmt::Display for ExportedInfo {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "?EXPORT,{},{}", self.lines, self.total_bytes)
+        write!(f, "{},{}", self.lines, self.total_bytes)
     }
 }
 
@@ -194,7 +192,7 @@ impl DeviceInfo {
 
 impl fmt::Display for DeviceInfo {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "?I,{},{}", self.device, self.firmware)
+        write!(f, "{},{}", self.device, self.firmware)
     }
 }
 
@@ -223,11 +221,10 @@ impl LedStatus {
 
 impl fmt::Display for LedStatus {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let status = match *self {
-            LedStatus::On => "1",
-            LedStatus::Off => "0",
-        };
-        write!(f, "?L,{}", status)
+        match *self {
+            LedStatus::On => write!(f, "on"),
+            LedStatus::Off => write!(f, "off"),
+        }
     }
 }
 
@@ -301,11 +298,10 @@ impl ProtocolLockStatus {
 
 impl fmt::Display for ProtocolLockStatus {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let status = match *self {
-            ProtocolLockStatus::On => "1",
-            ProtocolLockStatus::Off => "0",
-        };
-        write!(f, "?PLOCK,{}", status)
+        match *self {
+            ProtocolLockStatus::On => write!(f, "on"),
+            ProtocolLockStatus::Off => write!(f, "off"),
+        }
     }
 }
 
@@ -332,11 +328,11 @@ impl TemperatureScale {
 impl fmt::Display for TemperatureScale {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let status = match *self {
-            TemperatureScale::Celsius => "C",
-            TemperatureScale::Kelvin => "K",
-            TemperatureScale::Fahrenheit => "F",
+            TemperatureScale::Celsius => "celsius",
+            TemperatureScale::Kelvin => "kelvin",
+            TemperatureScale::Fahrenheit => "fahrenheit",
         };
-        write!(f, "?S,{}", status)
+        write!(f, "{}", status)
     }
 }
 
@@ -373,9 +369,9 @@ impl Temperature {
 impl fmt::Display for Temperature {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let (temp, scale) = match *self {
-            Temperature::Celsius(t) => (t, "CELSIUS"),
-            Temperature::Kelvin(t) => (t, "KELVIN"),
-            Temperature::Fahrenheit(t) => (t, "FAHRENHEIT"),
+            Temperature::Celsius(t) => (t, "celsius"),
+            Temperature::Kelvin(t) => (t, "kelvin"),
+            Temperature::Fahrenheit(t) => (t, "fahrenheit"),
         };
         write!(f, "{},{}", temp, scale)
     }
@@ -397,7 +393,7 @@ impl SensorReading {
 
 impl fmt::Display for SensorReading {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
+        write!(f, "{:.*}", 3, self.0)
     }
 }
 
@@ -413,14 +409,13 @@ pub enum RestartReason {
 
 impl fmt::Display for RestartReason {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let status = match *self {
-            RestartReason::PoweredOff => "P",
-            RestartReason::SoftwareReset => "S",
-            RestartReason::BrownOut => "B",
-            RestartReason::Watchdog => "W",
-            RestartReason::Unknown => "U",
-        };
-        write!(f, "{}", status)
+        match *self {
+            RestartReason::PoweredOff => write!(f, "powered-off"),
+            RestartReason::SoftwareReset => write!(f, "software-reset"),
+            RestartReason::BrownOut => write!(f, "brown-out"),
+            RestartReason::Watchdog => write!(f, "watchdog"),
+            RestartReason::Unknown => write!(f, "unknown"),
+        }
     }
 }
 
@@ -470,7 +465,7 @@ impl DeviceStatus {
 
 impl fmt::Display for DeviceStatus {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "?STATUS,{},{}", self.restart_reason, self.vcc_voltage)
+        write!(f, "{},{:.*}", self.restart_reason, 3, self.vcc_voltage)
     }
 }
 
@@ -492,10 +487,10 @@ mod tests {
     #[test]
     fn parses_calibration_status_to_response() {
         let calibration_status = CalibrationStatus::Calibrated;
-        assert_eq!(format!("{}", calibration_status), "?CAL,1");
+        assert_eq!(format!("{}", calibration_status), "calibrated");
 
         let calibration_status = CalibrationStatus::NotCalibrated;
-        assert_eq!(format!("{}", calibration_status), "?CAL,0");
+        assert_eq!(format!("{}", calibration_status), "not-calibrated");
     }
 
     #[test]
@@ -535,16 +530,16 @@ mod tests {
     #[test]
     fn parses_data_logger_storage_interval_to_response() {
         let interval = DataLoggerStorageIntervalSeconds(0);
-        assert_eq!(format!("{}", interval), "?D,0");
+        assert_eq!(format!("{}", interval), "0");
 
         let interval = DataLoggerStorageIntervalSeconds(10);
-        assert_eq!(format!("{}", interval), "?D,10");
+        assert_eq!(format!("{}", interval), "10");
 
         let interval = DataLoggerStorageIntervalSeconds(42);
-        assert_eq!(format!("{}", interval), "?D,42");
+        assert_eq!(format!("{}", interval), "42");
 
         let interval = DataLoggerStorageIntervalSeconds(320000);
-        assert_eq!(format!("{}", interval), "?D,320000");
+        assert_eq!(format!("{}", interval), "320000");
 
     }
 
@@ -629,10 +624,10 @@ mod tests {
     #[test]
     fn parses_export_info_to_response() {
         let export_info = ExportedInfo { lines: 0, total_bytes: 0 };
-        assert_eq!(format!("{}", export_info), "?EXPORT,0,0");
+        assert_eq!(format!("{}", export_info), "0,0");
 
         let export_info = ExportedInfo { lines: 10, total_bytes: 120 };
-        assert_eq!(format!("{}", export_info), "?EXPORT,10,120");
+        assert_eq!(format!("{}", export_info), "10,120");
     }
 
     #[test]
@@ -676,13 +671,13 @@ mod tests {
             device: "RTD".to_string(),
             firmware: "2.01".to_string(),
         };
-        assert_eq!(format!("{}", device_info), "?I,RTD,2.01");
+        assert_eq!(format!("{}", device_info), "RTD,2.01");
 
         let device_info = DeviceInfo {
             device: "RTD".to_string(),
             firmware: "1.98".to_string(),
         };
-        assert_eq!(format!("{}", device_info), "?I,RTD,1.98");
+        assert_eq!(format!("{}", device_info), "RTD,1.98");
     }
 
     #[test]
@@ -717,10 +712,10 @@ mod tests {
     #[test]
     fn parses_led_status_to_response() {
         let led = LedStatus::On;
-        assert_eq!(format!("{}", led), "?L,1");
+        assert_eq!(format!("{}", led), "on");
 
         let led = LedStatus::Off;
-        assert_eq!(format!("{}", led), "?L,0");
+        assert_eq!(format!("{}", led), "off");
     }
 
     #[test]
@@ -794,10 +789,10 @@ mod tests {
     #[test]
     fn parses_protocol_lock_status_to_response() {
         let plock = ProtocolLockStatus::On;
-        assert_eq!(format!("{}", plock), "?PLOCK,1");
+        assert_eq!(format!("{}", plock), "on");
 
         let plock = ProtocolLockStatus::Off;
-        assert_eq!(format!("{}", plock), "?PLOCK,0");
+        assert_eq!(format!("{}", plock), "off");
     }
 
     #[test]
@@ -833,13 +828,13 @@ mod tests {
     #[test]
     fn parses_sensor_reading_to_response() {
         let reading = SensorReading(0.0);
-        assert_eq!(format!("{}", reading), "0");
+        assert_eq!(format!("{}", reading), "0.000");
 
         let reading = SensorReading(1234.5);
-        assert_eq!(format!("{}", reading), "1234.5");
+        assert_eq!(format!("{}", reading), "1234.500");
 
-        let reading = SensorReading(-10.5);
-        assert_eq!(format!("{}", reading), "-10.5");
+        let reading = SensorReading(-10.035);
+        assert_eq!(format!("{}", reading), "-10.035");
     }
 
     #[test]
@@ -869,13 +864,13 @@ mod tests {
     #[test]
     fn parses_temperature_scale_to_response() {
         let scale = TemperatureScale::Celsius;
-        assert_eq!(format!("{}", scale), "?S,C");
+        assert_eq!(format!("{}", scale), "celsius");
 
         let scale = TemperatureScale::Kelvin;
-        assert_eq!(format!("{}", scale), "?S,K");
+        assert_eq!(format!("{}", scale), "kelvin");
 
         let scale = TemperatureScale::Fahrenheit;
-        assert_eq!(format!("{}", scale), "?S,F");
+        assert_eq!(format!("{}", scale), "fahrenheit");
     }
 
     #[test]
@@ -905,13 +900,13 @@ mod tests {
     #[test]
     fn parses_temperature_with_scale_to_response() {
         let temperature = Temperature::Celsius(0.0);
-        assert_eq!(format!("{}", temperature), "0,CELSIUS");
+        assert_eq!(format!("{}", temperature), "0,celsius");
 
         let temperature = Temperature::Kelvin(1234.5);
-        assert_eq!(format!("{}", temperature), "1234.5,KELVIN");
+        assert_eq!(format!("{}", temperature), "1234.5,kelvin");
 
         let temperature = Temperature::Fahrenheit(-10.5);
-        assert_eq!(format!("{}", temperature), "-10.5,FAHRENHEIT");
+        assert_eq!(format!("{}", temperature), "-10.5,fahrenheit");
     }
 
     #[test]
@@ -967,7 +962,7 @@ mod tests {
             restart_reason: RestartReason::Unknown,
             vcc_voltage: 3.15,
         };
-        assert_eq!(format!("{}", device_status), "?STATUS,U,3.15");
+        assert_eq!(format!("{}", device_status), "unknown,3.150");
     }
 
     #[test]
