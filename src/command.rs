@@ -90,7 +90,10 @@ impl FromStr for CalibrationTemperature {
             let rest = supper.get(4..).unwrap();
             let mut split = rest.split(',');
             let value = match split.next() {
-                Some(n) => n.parse::<f64>().unwrap(),
+                Some(n) => {
+                    n.parse::<f64>()
+                        .chain_err(|| ErrorKind::CommandParse)?
+                }
                 _ => bail!(ErrorKind::CommandParse),
             };
             match split.next() {
@@ -218,7 +221,8 @@ impl FromStr for DataloggerPeriod {
             let mut split = rest.split(',');
             let value = match split.next() {
                 Some(n) if n != "0" => {
-                    n.parse::<u32>().unwrap()
+                    n.parse::<u32>()
+                        .chain_err(|| ErrorKind::CommandParse)?
                 }
                 _ => bail!(ErrorKind::CommandParse),
             };
@@ -316,7 +320,8 @@ impl FromStr for DeviceAddress {
             let mut split = rest.split(',');
             let value = match split.next() {
                 Some(n) => {
-                    n.parse::<u16>().unwrap()
+                    n.parse::<u16>()
+                        .chain_err(|| ErrorKind::CommandParse)?
                 }
                 _ => bail!(ErrorKind::CommandParse),
             };
@@ -838,6 +843,15 @@ mod tests {
     }
 
     #[test]
+    fn parse_invalid_command_calibration_temperature_yields_err() {
+        let cmd = "cal,".parse::<CalibrationTemperature>();
+        assert!(cmd.is_err());
+
+        let cmd = "CAL,1a21.43".parse::<CalibrationTemperature>();
+        assert!(cmd.is_err());
+    }
+
+    #[test]
     fn build_command_calibration_clear() {
         let cmd = CalibrationClear;
         assert_eq!(cmd.get_command_string(), "CAL,CLEAR");
@@ -883,6 +897,15 @@ mod tests {
 
         let cmd = "D,200".parse::<DataloggerPeriod>().unwrap();
         assert_eq!(cmd, DataloggerPeriod(200));
+    }
+
+    #[test]
+    fn parse_invalid_command_data_logger_period_yields_error() {
+        let cmd = "d,".parse::<DataloggerPeriod>();
+        assert!(cmd.is_err());
+
+        let cmd = "D,2a0".parse::<DataloggerPeriod>();
+        assert!(cmd.is_err());
     }
 
     #[test]
@@ -1022,12 +1045,24 @@ mod tests {
     }
 
     #[test]
-    fn parse_case_insensitive_device_address() {
+    fn parse_case_command_insensitive_device_address() {
         let cmd = "i2c,1".parse::<DeviceAddress>().unwrap();
         assert_eq!(cmd, DeviceAddress(1));
 
         let cmd = "I2C,123".parse::<DeviceAddress>().unwrap();
         assert_eq!(cmd, DeviceAddress(123));
+    }
+
+    #[test]
+    fn parse_invalid_command_device_address_yields_error() {
+        let cmd = "I2C,".parse::<DeviceAddress>();
+        assert!(cmd.is_err());
+
+        let cmd = "I2C,a".parse::<DeviceAddress>();
+        assert!(cmd.is_err());
+
+        let cmd = "I2C,2a0".parse::<DeviceAddress>();
+        assert!(cmd.is_err());
     }
 
     #[test]
