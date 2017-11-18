@@ -34,13 +34,7 @@ use i2cdev::linux::LinuxI2CDevice;
 pub const MAX_DATA: usize = 16;
 
 /// I2C command for the EZO chip.
-pub trait Command {
-    type Response;
-
-    fn get_command_string (&self) -> String;
-    fn get_delay (&self) -> u64;
-    fn run(&self, dev: &mut LinuxI2CDevice) -> Result<Self::Response>;
-}
+pub use ezo_common::Command;
 
 define_command! {
     doc: "`BAUD,n` command, where `n` is a variant belonging to `BpsRate`.",
@@ -534,6 +528,7 @@ impl FromStr for Reading {
 pub struct ReadingWithScale;
 
 impl Command for ReadingWithScale {
+    type Error = Error;
     type Response = Temperature;
 
     fn get_command_string(&self) -> String {
