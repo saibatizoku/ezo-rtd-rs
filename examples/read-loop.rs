@@ -13,7 +13,7 @@ use std::time::Duration;
 use chrono::{DateTime, Utc};
 use ezo_rtd::errors::*;
 use ezo_rtd::command::{Command, ReadingWithScale, ScaleKelvin, Sleep};
-use ezo_rtd::response::{Temperature};
+use ezo_rtd::response::{ResponseStatus, Temperature};
 use i2cdev::linux::LinuxI2CDevice;
 
 const I2C_BUS_ID: u8 = 1;
@@ -25,7 +25,7 @@ fn run() -> Result<()> {
     let mut dev = LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR)
         .chain_err(|| "Could not open I2C device")?;
 
-    let _set_kelvin: () = ScaleKelvin.run(&mut dev)?;
+    let _set_kelvin: ResponseStatus = ScaleKelvin.run(&mut dev)?;
 
     loop {
 

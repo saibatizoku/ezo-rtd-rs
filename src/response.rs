@@ -4,8 +4,16 @@ use std::str::FromStr;
 
 use errors::*;
 
-pub use ezo_common::response::{DeviceInfo, DeviceStatus, ExportedInfo, Exported,
-                               LedStatus, ProtocolLockStatus, RestartReason};
+pub use ezo_common::response::{
+    DeviceInfo,
+    DeviceStatus,
+    Exported,
+    ExportedInfo,
+    LedStatus,
+    ResponseStatus,
+    RestartReason,
+    ProtocolLockStatus,
+};
 
 /// Calibration status of the RTD EZO chip.
 #[derive(Copy, Clone, PartialEq)]
