@@ -4,11 +4,7 @@
 
 // `error_chain!` can recurse deeply
 #![recursion_limit = "1024"]
-
 #![feature(exclusive_range_pattern)]
-
-#![feature(inclusive_range_syntax)]
-
 #![feature(trace_macros)]
 
 #[macro_use] extern crate error_chain;
