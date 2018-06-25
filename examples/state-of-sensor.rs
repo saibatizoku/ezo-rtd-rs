@@ -1,6 +1,7 @@
 //! An example that retrieves the current settings of the RTD EZO chip.
 //!
 extern crate ezo_rtd;
+extern crate failure;
 extern crate i2cdev;
 
 use ezo_rtd::errors::*;
@@ -9,15 +10,16 @@ use ezo_rtd::command::{Command, DeviceInformation, CalibrationState, DataloggerI
                        ScaleKelvin, Sleep, Status};
 use ezo_rtd::response::{CalibrationStatus, DataLoggerStorageIntervalSeconds, DeviceInfo,
                         DeviceStatus, Exported, ExportedInfo, LedStatus};
+use failure::{Error, ResultExt};
 use i2cdev::linux::LinuxI2CDevice;
 
 const I2C_BUS_ID: u8 = 1;
 const EZO_SENSOR_ADDR: u16 = 101; // could be specified as 0x65
 
-fn run() -> Result<()> {
+fn run() -> Result<(), Error> {
     let device_path = format!("/dev/i2c-{}", I2C_BUS_ID);
     let mut dev = LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR)
-        .chain_err(|| "Could not open I2C device")?;
+        .context("Could not open I2C device")?;
 
     let info: DeviceInfo = DeviceInformation.run(&mut dev)?;
     println!("{:?}", info);
@@ -61,22 +63,8 @@ fn run() -> Result<()> {
 
         Ok(temperature) => println!("{:?}", temperature),
 
-        Err(Error(e, _)) => {
-            match e {
-                ErrorKind::PendingResponse => {
-                    println!("Response is pending. Try again with a longer delay time.")
-                }
-
-                ErrorKind::DeviceErrorResponse => println!("The device responded with ERR."),
-
-                ErrorKind::NoDataExpectedResponse => {
-                    println!("The device responded that it has no data to send.")
-                }
-
-                ErrorKind::MalformedResponse => println!("The device response is unknown."),
-
-                _ => println!("The response is plainly weird. It should not exist."),
-            }
+        Err(e) => {
+            println!("Error: {}", e);
         }
     };
 
@@ -89,16 +77,10 @@ fn run() -> Result<()> {
 fn main() {
     if let Err(ref e) = run() {
         println!("error: {}", e);
-
-        for e in e.iter().skip(1) {
-            println!("caused by: {}", e);
-        }
-
         // The backtrace is not always generated. Try to run this example
         // with `RUST_BACKTRACE=1`.
-        if let Some(backtrace) = e.backtrace() {
-            println!("backtrace: {:?}", backtrace);
-        }
+        let backtrace = e.backtrace();
+        println!("backtrace: {:?}", backtrace);
         ::std::process::exit(1);
     }
 }

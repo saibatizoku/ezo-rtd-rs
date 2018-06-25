@@ -1,8 +1,10 @@
 //! Initial code graciously donated by "Federico Mena Quintero <federico@gnome.org>".
+use std::result;
 use std::fmt;
 use std::str::FromStr;
 
-use errors::*;
+use errors::ErrorKind;
+use failure::{Error, ResultExt};
 
 pub use ezo_common::response::{
     DeviceInfo,
@@ -14,6 +16,8 @@ pub use ezo_common::response::{
     RestartReason,
     ProtocolLockStatus,
 };
+
+pub type Result<T> = result::Result<T, Error>;
 
 /// Calibration status of the RTD EZO chip.
 #[derive(Copy, Clone, PartialEq)]
@@ -75,7 +79,7 @@ impl DataLoggerStorageIntervalSeconds {
         if response.starts_with("?D,") {
             let num_str = response.get(3..).unwrap();
             let num = u32::from_str(num_str)
-                .chain_err(|| ErrorKind::ResponseParse)?;
+                .context(ErrorKind::ResponseParse)?;
             match num {
                 0 | 10...320_000 => Ok(DataLoggerStorageIntervalSeconds(num)),
                 _ => Err(ErrorKind::ResponseParse.into()),
@@ -111,14 +115,14 @@ impl MemoryReading {
 
         let location: u32 = if let Some(location_str) = split.next() {
             u32::from_str(location_str)
-                .chain_err(|| ErrorKind::ResponseParse)?
+                .context(ErrorKind::ResponseParse)?
         } else {
             return Err(ErrorKind::ResponseParse.into());
         };
 
         let reading: f64 = if let Some(reading_str) = split.next() {
             f64::from_str(reading_str)
-                .chain_err(|| ErrorKind::ResponseParse)?
+                .context(ErrorKind::ResponseParse)?
         } else {
             return Err(ErrorKind::ResponseParse.into());
         };
@@ -210,7 +214,7 @@ impl Temperature {
     /// Note that this depends on knowing the temperature scale
     /// which the device is configured to use.
     pub fn parse(response: &str, scale: TemperatureScale) -> Result<Temperature> {
-        let val = f64::from_str(response).chain_err(|| ErrorKind::ResponseParse)?;
+        let val = f64::from_str(response).context(ErrorKind::ResponseParse)?;
         Ok(Temperature::new(scale, val))
     }
 }
@@ -246,7 +250,7 @@ impl SensorReading {
     /// Note that the returned value has no known units. It is your
     /// responsibility to know the current `TemperatureScale` setting.
     pub fn parse(response: &str) -> Result<SensorReading> {
-        let val = f64::from_str(response).chain_err(|| ErrorKind::ResponseParse)?;
+        let val = f64::from_str(response).context(ErrorKind::ResponseParse)?;
         Ok(SensorReading(val))
     }
 }

@@ -1,10 +1,13 @@
 //! I2C commands for the RTD EZO Chip.
 //! 
+use std::result;
 use std::str::FromStr;
 use std::thread;
 use std::time::Duration;
 
-use errors::*;
+use errors::ErrorKind;
+use failure::{Error, ResultExt};
+
 use response::{
     CalibrationStatus,
     DataLoggerStorageIntervalSeconds,
@@ -32,6 +35,7 @@ pub const MAX_DATA: usize = 16;
 pub use ezo_common::Command;
 pub use ezo_common::command::*;
 
+pub type Result<T> = result::Result<T, Error>;
 
 define_command! {
     doc: "`CAL,t` command, where `t` is of type `f64`.",
@@ -49,7 +53,7 @@ impl FromStr for CalibrationTemperature {
             let value = match split.next() {
                 Some(n) => {
                     n.parse::<f64>()
-                        .chain_err(|| ErrorKind::CommandParse)?
+                        .context(ErrorKind::CommandParse)?
                 }
                 _ => bail!(ErrorKind::CommandParse),
             };
@@ -97,7 +101,7 @@ impl FromStr for DataloggerPeriod {
             let value = match split.next() {
                 Some(n) if n != "0" => {
                     n.parse::<u32>()
-                        .chain_err(|| ErrorKind::CommandParse)?
+                        .context(ErrorKind::CommandParse)?
                 }
                 _ => bail!(ErrorKind::CommandParse),
             };
@@ -243,14 +247,14 @@ impl Command for ReadingWithScale {
         let cmd = Reading.get_command_string();
 
         let _w = write_to_ezo(dev, &cmd)
-            .chain_err(|| "Error writing to EZO device.")?;
+            .context("Error writing to EZO device.")?;
 
         let _wait = thread::sleep(Duration::from_millis(Reading.get_delay()));
 
         let mut data_buffer = [0u8; MAX_DATA];
 
         let _r = dev.read(&mut data_buffer)
-            .chain_err(|| ErrorKind::I2CRead)?;
+            .context(ErrorKind::I2CRead)?;
 
         let resp_string = match response_code(data_buffer[0]) {
 
@@ -258,7 +262,7 @@ impl Command for ReadingWithScale {
                 match data_buffer.iter().position(|&c| c == 0) {
                     Some(len) => {
                         string_from_response_data(&data_buffer[1..=len])
-                            .chain_err(|| ErrorKind::MalformedResponse)
+                            .context(ErrorKind::MalformedResponse)
                     }
                     _ => return Err(ErrorKind::MalformedResponse.into()),
                 }
