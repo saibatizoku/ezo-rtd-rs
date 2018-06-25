@@ -1,7 +1,5 @@
 //! An example that retrieves the current settings of the RTD EZO chip.
 //!
-#![recursion_limit = "1024"]
-
 extern crate ezo_rtd;
 extern crate i2cdev;
 

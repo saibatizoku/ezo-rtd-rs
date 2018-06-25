@@ -1,8 +1,5 @@
 //! An example that takes readings from the RTD EZO chip in a loop.
 //!
-
-#![recursion_limit = "1024"]
-
 extern crate chrono;
 extern crate ezo_rtd;
 extern crate i2cdev;

@@ -3,11 +3,10 @@
 //! calibration, sleep mode, scale, etc.
 
 // `error_chain!` can recurse deeply
-#![recursion_limit = "1024"]
 #![feature(exclusive_range_pattern)]
 #![feature(trace_macros)]
 
-#[macro_use] extern crate error_chain;
+#[macro_use] extern crate failure;
 #[macro_use] extern crate ezo_common;
 extern crate i2cdev;
 
