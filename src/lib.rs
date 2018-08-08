@@ -1,9 +1,6 @@
 //! I2C Commands for EZO RTD Chip, taken from their Datasheet.
 //! This chip is used for temperature measurement. It features
 //! calibration, sleep mode, scale, etc.
-#![feature(exclusive_range_pattern)]
-#![feature(trace_macros)]
-
 extern crate failure;
 #[macro_use]
 extern crate ezo_common;
