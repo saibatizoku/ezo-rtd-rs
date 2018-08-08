@@ -4,18 +4,11 @@ use std::str::FromStr;
 
 pub use ezo_common::errors::{ErrorKind, EzoError};
 pub use ezo_common::response::{
-    DeviceInfo,
-    DeviceStatus,
-    Exported,
-    ExportedInfo,
-    LedStatus,
-    ResponseStatus,
-    RestartReason,
-    ProtocolLockStatus,
+    DeviceInfo, DeviceStatus, Exported, ExportedInfo, LedStatus, ProtocolLockStatus,
+    ResponseStatus, RestartReason,
 };
 
 use failure::ResultExt;
-
 
 /// Calibration status of the RTD EZO chip.
 #[derive(Copy, Clone, PartialEq)]
@@ -76,8 +69,7 @@ impl DataLoggerStorageIntervalSeconds {
     pub fn parse(response: &str) -> Result<DataLoggerStorageIntervalSeconds, EzoError> {
         if response.starts_with("?D,") {
             let num_str = response.get(3..).unwrap();
-            let num = u32::from_str(num_str)
-                .context(ErrorKind::ResponseParse)?;
+            let num = u32::from_str(num_str).context(ErrorKind::ResponseParse)?;
             match num {
                 0 | 10...320_000 => Ok(DataLoggerStorageIntervalSeconds(num)),
                 _ => Err(ErrorKind::ResponseParse.into()),
@@ -112,15 +104,13 @@ impl MemoryReading {
         let mut split = response.split(",");
 
         let location: u32 = if let Some(location_str) = split.next() {
-            u32::from_str(location_str)
-                .context(ErrorKind::ResponseParse)?
+            u32::from_str(location_str).context(ErrorKind::ResponseParse)?
         } else {
             return Err(ErrorKind::ResponseParse.into());
         };
 
         let reading: f64 = if let Some(reading_str) = split.next() {
-            f64::from_str(reading_str)
-                .context(ErrorKind::ResponseParse)?
+            f64::from_str(reading_str).context(ErrorKind::ResponseParse)?
         } else {
             return Err(ErrorKind::ResponseParse.into());
         };
@@ -129,7 +119,7 @@ impl MemoryReading {
             return Err(ErrorKind::ResponseParse.into());
         }
 
-        Ok (MemoryReading { location, reading })
+        Ok(MemoryReading { location, reading })
     }
 }
 
@@ -272,12 +262,16 @@ mod tests {
     #[test]
     fn parses_response_to_calibration_status() {
         let response = "?CAL,1";
-        assert_eq!(CalibrationStatus::parse(&response).unwrap(),
-                   CalibrationStatus::Calibrated);
+        assert_eq!(
+            CalibrationStatus::parse(&response).unwrap(),
+            CalibrationStatus::Calibrated
+        );
 
         let response = "?CAL,0";
-        assert_eq!(CalibrationStatus::parse(&response).unwrap(),
-                   CalibrationStatus::NotCalibrated);
+        assert_eq!(
+            CalibrationStatus::parse(&response).unwrap(),
+            CalibrationStatus::NotCalibrated
+        );
     }
 
     #[test]
@@ -307,20 +301,28 @@ mod tests {
     #[test]
     fn parses_response_to_data_logger_storage_interval() {
         let response = "?D,0";
-        assert_eq!(DataLoggerStorageIntervalSeconds::parse(response).unwrap(),
-                   DataLoggerStorageIntervalSeconds(0));
+        assert_eq!(
+            DataLoggerStorageIntervalSeconds::parse(response).unwrap(),
+            DataLoggerStorageIntervalSeconds(0)
+        );
 
         let response = "?D,10";
-        assert_eq!(DataLoggerStorageIntervalSeconds::parse(response).unwrap(),
-                   DataLoggerStorageIntervalSeconds(10));
+        assert_eq!(
+            DataLoggerStorageIntervalSeconds::parse(response).unwrap(),
+            DataLoggerStorageIntervalSeconds(10)
+        );
 
         let response = "?D,42";
-        assert_eq!(DataLoggerStorageIntervalSeconds::parse(response).unwrap(),
-                   DataLoggerStorageIntervalSeconds(42));
+        assert_eq!(
+            DataLoggerStorageIntervalSeconds::parse(response).unwrap(),
+            DataLoggerStorageIntervalSeconds(42)
+        );
 
         let response = "?D,320000";
-        assert_eq!(DataLoggerStorageIntervalSeconds::parse(response).unwrap(),
-                   DataLoggerStorageIntervalSeconds(320000));
+        assert_eq!(
+            DataLoggerStorageIntervalSeconds::parse(response).unwrap(),
+            DataLoggerStorageIntervalSeconds(320000)
+        );
     }
 
     #[test]
@@ -336,7 +338,6 @@ mod tests {
 
         let interval = DataLoggerStorageIntervalSeconds(320000);
         assert_eq!(format!("{}", interval), "320000");
-
     }
 
     #[test]
@@ -360,27 +361,51 @@ mod tests {
     #[test]
     fn parses_response_to_memory_reading() {
         let response = "0,0";
-        assert_eq!(MemoryReading::parse(response).unwrap(),
-                   MemoryReading { location: 0, reading: 0.0 });
+        assert_eq!(
+            MemoryReading::parse(response).unwrap(),
+            MemoryReading {
+                location: 0,
+                reading: 0.0
+            }
+        );
 
         let response = "50,1234.5";
-        assert_eq!(MemoryReading::parse(response).unwrap(),
-                   MemoryReading { location: 50, reading: 1234.5 });
+        assert_eq!(
+            MemoryReading::parse(response).unwrap(),
+            MemoryReading {
+                location: 50,
+                reading: 1234.5
+            }
+        );
 
         let response = "17,-10.5";
-        assert_eq!(MemoryReading::parse(response).unwrap(),
-                   MemoryReading { location: 17, reading: -10.5 });
+        assert_eq!(
+            MemoryReading::parse(response).unwrap(),
+            MemoryReading {
+                location: 17,
+                reading: -10.5
+            }
+        );
     }
 
     #[test]
     fn parses_memory_reading_to_response() {
-        let memory = MemoryReading { location: 0, reading: 0.0 };
+        let memory = MemoryReading {
+            location: 0,
+            reading: 0.0,
+        };
         assert_eq!(format!("{}", memory), "0,0");
 
-        let memory = MemoryReading { location: 50, reading: 1234.5 };
+        let memory = MemoryReading {
+            location: 50,
+            reading: 1234.5,
+        };
         assert_eq!(format!("{}", memory), "50,1234.5");
 
-        let memory = MemoryReading { location: 17, reading: -10.5 };
+        let memory = MemoryReading {
+            location: 17,
+            reading: -10.5,
+        };
         assert_eq!(format!("{}", memory), "17,-10.5");
     }
 
@@ -402,16 +427,19 @@ mod tests {
     #[test]
     fn parses_response_to_sensor_reading() {
         let response = "0";
-        assert_eq!(SensorReading::parse(response).unwrap(),
-                   SensorReading(0.0));
+        assert_eq!(SensorReading::parse(response).unwrap(), SensorReading(0.0));
 
         let response = "1234.5";
-        assert_eq!(SensorReading::parse(response).unwrap(),
-                   SensorReading(1234.5));
+        assert_eq!(
+            SensorReading::parse(response).unwrap(),
+            SensorReading(1234.5)
+        );
 
         let response = "-10.5";
-        assert_eq!(SensorReading::parse(response).unwrap(),
-                   SensorReading(-10.5));
+        assert_eq!(
+            SensorReading::parse(response).unwrap(),
+            SensorReading(-10.5)
+        );
     }
 
     #[test]
@@ -438,16 +466,22 @@ mod tests {
     #[test]
     fn parses_response_to_temperature_scale() {
         let response = "?S,C";
-        assert_eq!(TemperatureScale::parse(&response).unwrap(),
-                   TemperatureScale::Celsius);
+        assert_eq!(
+            TemperatureScale::parse(&response).unwrap(),
+            TemperatureScale::Celsius
+        );
 
         let response = "?S,K";
-        assert_eq!(TemperatureScale::parse(&response).unwrap(),
-                   TemperatureScale::Kelvin);
+        assert_eq!(
+            TemperatureScale::parse(&response).unwrap(),
+            TemperatureScale::Kelvin
+        );
 
         let response = "?S,F";
-        assert_eq!(TemperatureScale::parse(&response).unwrap(),
-                   TemperatureScale::Fahrenheit);
+        assert_eq!(
+            TemperatureScale::parse(&response).unwrap(),
+            TemperatureScale::Fahrenheit
+        );
     }
 
     #[test]
@@ -474,16 +508,22 @@ mod tests {
     #[test]
     fn parses_response_to_temperature_with_scale() {
         let response = "0";
-        assert_eq!(Temperature::parse(response, TemperatureScale::Celsius).unwrap(),
-                   Temperature::Celsius(0.0));
+        assert_eq!(
+            Temperature::parse(response, TemperatureScale::Celsius).unwrap(),
+            Temperature::Celsius(0.0)
+        );
 
         let response = "1234.5";
-        assert_eq!(Temperature::parse(response, TemperatureScale::Kelvin).unwrap(),
-                   Temperature::Kelvin(1234.5));
+        assert_eq!(
+            Temperature::parse(response, TemperatureScale::Kelvin).unwrap(),
+            Temperature::Kelvin(1234.5)
+        );
 
         let response = "-10.5";
-        assert_eq!(Temperature::parse(response, TemperatureScale::Fahrenheit).unwrap(),
-                   Temperature::Fahrenheit(-10.5));
+        assert_eq!(
+            Temperature::parse(response, TemperatureScale::Fahrenheit).unwrap(),
+            Temperature::Fahrenheit(-10.5)
+        );
     }
 
     #[test]

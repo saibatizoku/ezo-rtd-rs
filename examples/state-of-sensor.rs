@@ -4,11 +4,14 @@ extern crate ezo_rtd;
 extern crate failure;
 extern crate i2cdev;
 
-use ezo_rtd::command::{Command, DeviceInformation, CalibrationState, DataloggerInterval, Export,
-                       ExportInfo, LedState, ReadingWithScale, ScaleCelsius, ScaleFahrenheit,
-                       ScaleKelvin, Sleep, Status};
-use ezo_rtd::response::{CalibrationStatus, DataLoggerStorageIntervalSeconds, DeviceInfo,
-                        DeviceStatus, Exported, ExportedInfo, LedStatus};
+use ezo_rtd::command::{
+    CalibrationState, Command, DataloggerInterval, DeviceInformation, Export, ExportInfo, LedState,
+    ReadingWithScale, ScaleCelsius, ScaleFahrenheit, ScaleKelvin, Sleep, Status,
+};
+use ezo_rtd::response::{
+    CalibrationStatus, DataLoggerStorageIntervalSeconds, DeviceInfo, DeviceStatus, Exported,
+    ExportedInfo, LedStatus,
+};
 use failure::{Error, ResultExt};
 use i2cdev::linux::LinuxI2CDevice;
 
@@ -17,8 +20,8 @@ const EZO_SENSOR_ADDR: u16 = 101; // could be specified as 0x65
 
 fn run() -> Result<(), Error> {
     let device_path = format!("/dev/i2c-{}", I2C_BUS_ID);
-    let mut dev = LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR)
-        .context("Could not open I2C device")?;
+    let mut dev =
+        LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR).context("Could not open I2C device")?;
 
     let info: DeviceInfo = DeviceInformation.run(&mut dev)?;
     println!("{:?}", info);
@@ -59,7 +62,6 @@ fn run() -> Result<(), Error> {
     println!("Scale set to CELSIUS");
 
     let _reading = match ReadingWithScale.run(&mut dev) {
-
         Ok(temperature) => println!("{:?}", temperature),
 
         Err(e) => {

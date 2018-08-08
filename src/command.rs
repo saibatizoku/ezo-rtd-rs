@@ -3,23 +3,14 @@ use std::str::FromStr;
 use std::thread;
 use std::time::Duration;
 
-use super::{ErrorKind, EzoError};
 use super::response::{
-    CalibrationStatus,
-    DataLoggerStorageIntervalSeconds,
-    MemoryReading,
-    SensorReading,
-    Temperature,
+    CalibrationStatus, DataLoggerStorageIntervalSeconds, MemoryReading, SensorReading, Temperature,
     TemperatureScale,
 };
+use super::{ErrorKind, EzoError};
 
-use ezo_common::{
-    ResponseCode,
-    response_code,
-    string_from_response_data,
-    write_to_ezo,
-};
 use ezo_common::response::ResponseStatus;
+use ezo_common::{response_code, string_from_response_data, write_to_ezo, ResponseCode};
 
 use failure::ResultExt;
 
@@ -29,9 +20,9 @@ use i2cdev::linux::LinuxI2CDevice;
 /// Maximum ascii-character response size + 2
 pub const MAX_DATA: usize = 16;
 
+pub use ezo_common::command::*;
 /// I2C command for the EZO chip.
 pub use ezo_common::Command;
-pub use ezo_common::command::*;
 
 define_command! {
     doc: "`CAL,t` command, where `t` is of type `f64`.",
@@ -47,10 +38,7 @@ impl FromStr for CalibrationTemperature {
             let rest = supper.get(4..).unwrap();
             let mut split = rest.split(',');
             let value = match split.next() {
-                Some(n) => {
-                    n.parse::<f64>()
-                        .context(ErrorKind::CommandParse)?
-                }
+                Some(n) => n.parse::<f64>().context(ErrorKind::CommandParse)?,
                 _ => return Err(ErrorKind::CommandParse)?,
             };
             match split.next() {
@@ -95,10 +83,7 @@ impl FromStr for DataloggerPeriod {
             let rest = supper.get(2..).unwrap();
             let mut split = rest.split(',');
             let value = match split.next() {
-                Some(n) if n != "0" => {
-                    n.parse::<u32>()
-                        .context(ErrorKind::CommandParse)?
-                }
+                Some(n) if n != "0" => n.parse::<u32>().context(ErrorKind::CommandParse)?,
                 _ => return Err(ErrorKind::CommandParse)?,
             };
             match split.next() {
@@ -237,7 +222,6 @@ impl Command for ReadingWithScale {
     }
 
     fn run(&self, dev: &mut LinuxI2CDevice) -> Result<Temperature, EzoError> {
-
         let scale = ScaleState.run(dev)?;
 
         let cmd = Reading.get_command_string();
@@ -248,20 +232,14 @@ impl Command for ReadingWithScale {
 
         let mut data_buffer = [0u8; MAX_DATA];
 
-        let _r = dev.read(&mut data_buffer)
-            .context(ErrorKind::I2CRead)?;
+        let _r = dev.read(&mut data_buffer).context(ErrorKind::I2CRead)?;
 
         let resp_string = match response_code(data_buffer[0]) {
-
-            ResponseCode::Success => {
-                match data_buffer.iter().position(|&c| c == 0) {
-                    Some(len) => {
-                        string_from_response_data(&data_buffer[1..=len])
-                            .context(ErrorKind::MalformedResponse)
-                    }
-                    _ => return Err(ErrorKind::MalformedResponse.into()),
-                }
-            }
+            ResponseCode::Success => match data_buffer.iter().position(|&c| c == 0) {
+                Some(len) => string_from_response_data(&data_buffer[1..=len])
+                    .context(ErrorKind::MalformedResponse),
+                _ => return Err(ErrorKind::MalformedResponse.into()),
+            },
 
             ResponseCode::Pending => return Err(ErrorKind::PendingResponse.into()),
 
@@ -310,7 +288,6 @@ impl FromStr for ScaleKelvin {
     }
 }
 
-
 define_command! {
     doc: "`S,F` command.",
     ScaleFahrenheit, { "S,F".to_string() }, 300, Ack
@@ -328,7 +305,7 @@ impl FromStr for ScaleFahrenheit {
     }
 }
 
-define_command! { 
+define_command! {
     doc: "`S,?` command. Returns a `TemperatureScale` response.",
     ScaleState, { "S,?".to_string() }, 300,
     resp: TemperatureScale, { TemperatureScale::parse(&resp) }
@@ -345,7 +322,6 @@ impl FromStr for ScaleState {
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {

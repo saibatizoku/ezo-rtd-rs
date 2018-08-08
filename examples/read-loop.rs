@@ -20,13 +20,12 @@ const EZO_SENSOR_ADDR: u16 = 101; // could be specified as 0x65
 fn run() -> Result<(), Error> {
     let device_path = format!("/dev/i2c-{}", I2C_BUS_ID);
 
-    let mut dev = LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR)
-        .context("Could not open I2C device")?;
+    let mut dev =
+        LinuxI2CDevice::new(&device_path, EZO_SENSOR_ADDR).context("Could not open I2C device")?;
 
     let _set_kelvin: ResponseStatus = ScaleKelvin.run(&mut dev)?;
 
     loop {
-
         let temperature = ReadingWithScale.run(&mut dev)?;
 
         let _out = _print_response(temperature)?;
@@ -40,10 +39,7 @@ fn run() -> Result<(), Error> {
 
 fn _print_response(temp: Temperature) -> Result<(), Error> {
     let dt: DateTime<Utc> = Utc::now();
-    println!("{:?},{:?}",
-             dt,
-             temp,
-             );
+    println!("{:?},{:?}", dt, temp,);
     Ok(())
 }
 
