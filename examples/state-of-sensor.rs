@@ -4,7 +4,6 @@ extern crate ezo_rtd;
 extern crate failure;
 extern crate i2cdev;
 
-use ezo_rtd::errors::*;
 use ezo_rtd::command::{Command, DeviceInformation, CalibrationState, DataloggerInterval, Export,
                        ExportInfo, LedState, ReadingWithScale, ScaleCelsius, ScaleFahrenheit,
                        ScaleKelvin, Sleep, Status};

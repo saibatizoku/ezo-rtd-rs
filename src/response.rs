@@ -1,11 +1,8 @@
 //! Initial code graciously donated by "Federico Mena Quintero <federico@gnome.org>".
-use std::result;
 use std::fmt;
 use std::str::FromStr;
 
-use errors::ErrorKind;
-use failure::{Error, ResultExt};
-
+pub use ezo_common::errors::{ErrorKind, EzoError};
 pub use ezo_common::response::{
     DeviceInfo,
     DeviceStatus,
@@ -17,7 +14,8 @@ pub use ezo_common::response::{
     ProtocolLockStatus,
 };
 
-pub type Result<T> = result::Result<T, Error>;
+use failure::ResultExt;
+
 
 /// Calibration status of the RTD EZO chip.
 #[derive(Copy, Clone, PartialEq)]
@@ -29,7 +27,7 @@ pub enum CalibrationStatus {
 impl CalibrationStatus {
     /// Parses the result of the "Cal,?" command to query the device's
     /// calibration status.  Returns ...
-    pub fn parse(response: &str) -> Result<CalibrationStatus> {
+    pub fn parse(response: &str) -> Result<CalibrationStatus, EzoError> {
         if response.starts_with("?CAL,") {
             let rest = response.get(5..).unwrap();
             let mut split = rest.split(',');
@@ -75,7 +73,7 @@ pub struct DataLoggerStorageIntervalSeconds(pub u32);
 impl DataLoggerStorageIntervalSeconds {
     /// Parses the result of the "D,?" command to query the data logger's
     /// storage interval.  Returns the number of seconds between readings.
-    pub fn parse(response: &str) -> Result<DataLoggerStorageIntervalSeconds> {
+    pub fn parse(response: &str) -> Result<DataLoggerStorageIntervalSeconds, EzoError> {
         if response.starts_with("?D,") {
             let num_str = response.get(3..).unwrap();
             let num = u32::from_str(num_str)
@@ -110,7 +108,7 @@ pub struct MemoryReading {
 }
 
 impl MemoryReading {
-    pub fn parse(response: &str) -> Result<MemoryReading> {
+    pub fn parse(response: &str) -> Result<MemoryReading, EzoError> {
         let mut split = response.split(",");
 
         let location: u32 = if let Some(location_str) = split.next() {
@@ -157,7 +155,7 @@ pub enum TemperatureScale {
 
 impl TemperatureScale {
     /// Parses the result of the "S,?" command to query temperature scale.
-    pub fn parse(response: &str) -> Result<TemperatureScale> {
+    pub fn parse(response: &str) -> Result<TemperatureScale, EzoError> {
         match response {
             "?S,C" => Ok(TemperatureScale::Celsius),
             "?S,K" => Ok(TemperatureScale::Kelvin),
@@ -213,7 +211,7 @@ impl Temperature {
     /// Parses the result of the "R" command to get a temperature reading.
     /// Note that this depends on knowing the temperature scale
     /// which the device is configured to use.
-    pub fn parse(response: &str, scale: TemperatureScale) -> Result<Temperature> {
+    pub fn parse(response: &str, scale: TemperatureScale) -> Result<Temperature, EzoError> {
         let val = f64::from_str(response).context(ErrorKind::ResponseParse)?;
         Ok(Temperature::new(scale, val))
     }
@@ -249,7 +247,7 @@ impl SensorReading {
     /// Parses the result of the "R" command to get a temperature reading.
     /// Note that the returned value has no known units. It is your
     /// responsibility to know the current `TemperatureScale` setting.
-    pub fn parse(response: &str) -> Result<SensorReading> {
+    pub fn parse(response: &str) -> Result<SensorReading, EzoError> {
         let val = f64::from_str(response).context(ErrorKind::ResponseParse)?;
         Ok(SensorReading(val))
     }
